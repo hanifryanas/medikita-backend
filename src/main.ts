@@ -21,7 +21,7 @@ async function bootstrap() {
   app.use(helmet());
 
   const config = new DocumentBuilder()
-    .setTitle('Mediflow API')
+    .setTitle('Medikita API')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

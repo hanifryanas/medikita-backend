@@ -1,6 +1,6 @@
-## Mediflow API Overview
+## Medikita API Overview
 
-This backend API powers the Mediflow application, a modular healthcare management system built with NestJS and PostgreSQL.
+This backend API powers the Medikita application, a modular healthcare management system built with NestJS and PostgreSQL.
 
 **Features:**
 
@@ -31,7 +31,7 @@ Before running the backend, make sure you have **PostgreSQL (psql)** installed a
 
    ```sh
    psql -U postgres
-   CREATE DATABASE mediflow;
+   CREATE DATABASE medikita;
    ```
 
 3. **Configure environment variables:**  
@@ -39,7 +39,7 @@ Before running the backend, make sure you have **PostgreSQL (psql)** installed a
    ```
    DB_HOST=localhost
    DB_PORT=5432
-   DB_DATABASE=mediflow
+   DB_DATABASE=medikita
    DB_USERNAME=your_postgres_user
    DB_PASSWORD=your_postgres_password
    ```
@@ -121,4 +121,4 @@ All operations for patients, employees, doctors, and nurses are ultimately tied 
    All endpoints are documented and accessible via Swagger UI at `/api/docs`.
 
 **Summary:**  
-The Mediflow backend provides a secure, modular, and scalable foundation for healthcare management, supporting authentication, user/employee/patient management, scheduling, and robust data operations.
+The Medikita backend provides a secure, modular, and scalable foundation for healthcare management, supporting authentication, user/employee/patient management, scheduling, and robust data operations.
