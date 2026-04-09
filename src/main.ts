@@ -17,7 +17,16 @@ async function bootstrap() {
     }),
   );
 
-  app.enableCors({ origin: [/^http:\/\/localhost:\d+$/], credentials: true });
+  const corsOrigins = (process.env.CORS_ORIGINS ?? '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  app.enableCors({
+    origin: corsOrigins.length > 0 ? corsOrigins : [/^http:\/\/localhost:\d+$/],
+    credentials: true,
+  });
+
   app.use(helmet());
 
   const config = new DocumentBuilder()
