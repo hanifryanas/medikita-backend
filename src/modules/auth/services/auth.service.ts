@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { LoginDataDto } from '../dtos/login-data.dto';
-import { LoginDto } from '../dtos/login.dto';
 import { CreateUserDto } from '../../user/dtos/create-user-dto';
 import { User } from '../../user/entities/user.entity';
 import { UserTokenType } from '../../user/enums/user-token.enum';
 import { UserTokenService } from '../../user/services/user-token.service';
 import { UserService } from '../../user/services/user.service';
+import { LoginDataDto } from '../dtos/login-data.dto';
+import { LoginDto } from '../dtos/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -22,14 +22,37 @@ export class AuthService {
 
     const createdAccessToken = this.jwtService.sign(validatedUser);
 
-    await this.userTokenService.createRefreshToken(validatedUser.userId);
+    let refreshToken: string | undefined;
+    if (loginDto.isRemember) {
+      const userToken = await this.userTokenService.createPermanentRefreshToken(
+        validatedUser.userId,
+      );
+      refreshToken = userToken.token;
+    }
 
-    const signinData: LoginDataDto = {
+    return {
       ...validatedUser,
       accessToken: createdAccessToken,
+      refreshToken,
+    };
+  }
+
+  async refresh(refreshToken: string): Promise<{ accessToken: string }> {
+    const userId =
+      await this.userTokenService.validateRefreshToken(refreshToken);
+
+    const user = await this.userService.findOneBy({ userId });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const payload: LoginDataDto = {
+      userId: user.userId,
+      username: user.userName,
+      role: user.role,
     };
 
-    return signinData;
+    return { accessToken: this.jwtService.sign(payload) };
   }
 
   async signup(createUserDto: CreateUserDto): Promise<LoginDataDto> {

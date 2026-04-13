@@ -5,4 +5,5 @@ export class LoginDataDto {
   username: string;
   role: UserRole;
   accessToken?: string;
+  refreshToken?: string;
 }

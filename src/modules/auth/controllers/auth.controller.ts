@@ -1,14 +1,15 @@
 import { Body, Controller, Get, Post, Put, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from '../../../common/decorators/public.decorator';
-import { LoginDataDto } from '../dtos/login-data.dto';
-import { LoginDto } from '../dtos/login.dto';
+import { AuthenticatedRequest } from '../../../common/interfaces/authenticated-request.interface';
 import { CreateUserDto } from '../../user/dtos/create-user-dto';
 import { UpdateUserDto } from '../../user/dtos/update-user-dto';
 import { User } from '../../user/entities/user.entity';
 import { UserService } from '../../user/services/user.service';
+import { LoginDataDto } from '../dtos/login-data.dto';
+import { LoginDto } from '../dtos/login.dto';
+import { RefreshTokenDto } from '../dtos/refresh-token.dto';
 import { AuthService } from '../services/auth.service';
-import { AuthenticatedRequest } from '../../../common/interfaces/authenticated-request.interface';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -28,6 +29,14 @@ export class AuthController {
   @Post('/login')
   async login(@Body() loginDto: LoginDto): Promise<LoginDataDto> {
     return this.authService.login(loginDto);
+  }
+
+  @Public()
+  @Post('/refresh')
+  async refresh(
+    @Body() refreshTokenDto: RefreshTokenDto,
+  ): Promise<{ accessToken: string }> {
+    return await this.authService.refresh(refreshTokenDto.refreshToken);
   }
 
   @ApiBearerAuth()
