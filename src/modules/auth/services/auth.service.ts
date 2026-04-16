@@ -59,7 +59,7 @@ export class AuthService {
     await this.userService.create(createUserDto);
 
     const loginDto: LoginDto = {
-      emailOrUsername: createUserDto.userName,
+      identifier: createUserDto.userName,
       password: createUserDto.password,
     };
 

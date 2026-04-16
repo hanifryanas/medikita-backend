@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, Put, Req } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { Public } from '../../../common/decorators/public.decorator';
 import { AuthenticatedRequest } from '../../../common/interfaces/authenticated-request.interface';
 import { CreateUserDto } from '../../user/dtos/create-user-dto';
@@ -27,6 +27,10 @@ export class AuthController {
 
   @Public()
   @Post('/login')
+  @ApiBody({
+    type: LoginDto,
+    description: 'Login using email, username, or phone number',
+  })
   async login(@Body() loginDto: LoginDto): Promise<LoginDataDto> {
     return this.authService.login(loginDto);
   }
