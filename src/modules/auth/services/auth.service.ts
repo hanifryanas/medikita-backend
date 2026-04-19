@@ -22,13 +22,11 @@ export class AuthService {
 
     const createdAccessToken = this.jwtService.sign(validatedUser);
 
-    let refreshToken: string | undefined;
-    if (loginDto.isRemember) {
-      const userToken = await this.userTokenService.createPermanentRefreshToken(
-        validatedUser.userId,
-      );
-      refreshToken = userToken.token;
-    }
+    const userToken = loginDto.isRemember
+      ? await this.userTokenService.createLongRefreshToken(validatedUser.userId)
+      : await this.userTokenService.createRefreshToken(validatedUser.userId);
+
+    const refreshToken = userToken.token;
 
     return {
       ...validatedUser,

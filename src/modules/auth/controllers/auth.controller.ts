@@ -47,9 +47,6 @@ export class AuthController {
   @Get('/me')
   async getProfile(@Req() req: AuthenticatedRequest): Promise<User> {
     const userId = req.user?.userId;
-    if (!userId) {
-      throw new Error('User ID not found in request');
-    }
 
     return this.authService.me(userId);
   }
@@ -61,9 +58,6 @@ export class AuthController {
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<void> {
     const userId = req.user?.userId;
-    if (!userId) {
-      throw new Error('User ID not found in request');
-    }
 
     return this.userService.update(userId, updateUserDto);
   }
@@ -72,9 +66,6 @@ export class AuthController {
   @Post('/logout')
   async logout(@Req() req: AuthenticatedRequest): Promise<void> {
     const userId = req.user?.userId;
-    if (!userId) {
-      throw new Error('User ID not found in request');
-    }
 
     return this.authService.logout(userId);
   }

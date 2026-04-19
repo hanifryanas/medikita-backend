@@ -47,13 +47,13 @@ export class UserTokenService {
     return await this.userTokenRepository.save(userToken);
   }
 
-  async createPermanentRefreshToken(userId: string): Promise<UserToken> {
-    const secret = this.configService.get<string>('token.refreshTokenSecret');
+  async createLongRefreshToken(userId: string): Promise<UserToken> {
+    const tokenOptions = this.getRefreshTokenOptions();
     const REMEMBER_ME_DAYS = 30;
 
     const generatedRefreshToken = this.jwtService.sign(
       { userId },
-      { secret, expiresIn: `${REMEMBER_ME_DAYS * 24}h` },
+      { secret: tokenOptions.secret, expiresIn: `${REMEMBER_ME_DAYS * 24}h` },
     );
 
     const userToken = this.userTokenRepository.create({
