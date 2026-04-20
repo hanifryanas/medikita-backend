@@ -6,9 +6,9 @@ import { CreateUserDto } from '../../user/dtos/create-user-dto';
 import { UpdateUserDto } from '../../user/dtos/update-user-dto';
 import { User } from '../../user/entities/user.entity';
 import { UserService } from '../../user/services/user.service';
-import { LoginDataDto } from '../dtos/login-data.dto';
-import { LoginDto } from '../dtos/login.dto';
 import { RefreshTokenDto } from '../dtos/refresh-token.dto';
+import { SigninDataDto } from '../dtos/signin-data.dto';
+import { SigninDto } from '../dtos/signin.dto';
 import { AuthService } from '../services/auth.service';
 
 @Controller('auth')
@@ -21,18 +21,18 @@ export class AuthController {
 
   @Public()
   @Post('/signup')
-  async signup(@Body() createUserDto: CreateUserDto): Promise<LoginDataDto> {
+  async signup(@Body() createUserDto: CreateUserDto): Promise<SigninDataDto> {
     return this.authService.signup(createUserDto);
   }
 
   @Public()
-  @Post('/login')
+  @Post('/signin')
   @ApiBody({
-    type: LoginDto,
-    description: 'Login using email, username, or phone number',
+    type: SigninDto,
+    description: 'Sign in using email, username, or phone number',
   })
-  async login(@Body() loginDto: LoginDto): Promise<LoginDataDto> {
-    return this.authService.login(loginDto);
+  async signin(@Body() signinDto: SigninDto): Promise<SigninDataDto> {
+    return this.authService.signin(signinDto);
   }
 
   @Public()
@@ -63,10 +63,10 @@ export class AuthController {
   }
 
   @ApiBearerAuth()
-  @Post('/logout')
-  async logout(@Req() req: AuthenticatedRequest): Promise<void> {
+  @Post('/signout')
+  async signout(@Req() req: AuthenticatedRequest): Promise<void> {
     const userId = req.user?.userId;
 
-    return this.authService.logout(userId);
+    return this.authService.signout(userId);
   }
 }

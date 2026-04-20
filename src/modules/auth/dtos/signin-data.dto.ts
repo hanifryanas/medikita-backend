@@ -1,6 +1,6 @@
 import { UserRole } from '../../user/enums/user-role.enum';
 
-export class LoginDataDto {
+export class SigninDataDto {
   userId: string;
   username: string;
   role: UserRole;

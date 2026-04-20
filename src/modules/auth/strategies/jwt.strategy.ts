@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { LoginDataDto } from '../dtos/login-data.dto';
 import { UserRole } from '../../user/enums/user-role.enum';
+import { SigninDataDto } from '../dtos/signin-data.dto';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -19,7 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     userId: string;
     username: string;
     role: UserRole;
-  }): LoginDataDto {
+  }): SigninDataDto {
     return {
       userId: payload.userId,
       username: payload.username,

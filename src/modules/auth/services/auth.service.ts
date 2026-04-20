@@ -5,8 +5,8 @@ import { User } from '../../user/entities/user.entity';
 import { UserTokenType } from '../../user/enums/user-token.enum';
 import { UserTokenService } from '../../user/services/user-token.service';
 import { UserService } from '../../user/services/user.service';
-import { LoginDataDto } from '../dtos/login-data.dto';
-import { LoginDto } from '../dtos/login.dto';
+import { SigninDataDto } from '../dtos/signin-data.dto';
+import { SigninDto } from '../dtos/signin.dto';
 
 @Injectable()
 export class AuthService {
@@ -16,13 +16,13 @@ export class AuthService {
     private readonly userTokenService: UserTokenService,
   ) {}
 
-  async login(loginDto: LoginDto): Promise<LoginDataDto> {
+  async signin(signinDto: SigninDto): Promise<SigninDataDto> {
     const validatedUser =
-      await this.userService.validateUserCredential(loginDto);
+      await this.userService.validateUserCredential(signinDto);
 
     const createdAccessToken = this.jwtService.sign(validatedUser);
 
-    const userToken = loginDto.isRemember
+    const userToken = signinDto.isRemember
       ? await this.userTokenService.createLongRefreshToken(validatedUser.userId)
       : await this.userTokenService.createRefreshToken(validatedUser.userId);
 
@@ -44,7 +44,7 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    const payload: LoginDataDto = {
+    const payload: SigninDataDto = {
       userId: user.userId,
       username: user.userName,
       role: user.role,
@@ -53,15 +53,15 @@ export class AuthService {
     return { accessToken: this.jwtService.sign(payload) };
   }
 
-  async signup(createUserDto: CreateUserDto): Promise<LoginDataDto> {
+  async signup(createUserDto: CreateUserDto): Promise<SigninDataDto> {
     await this.userService.create(createUserDto);
 
-    const loginDto: LoginDto = {
+    const signinDto: SigninDto = {
       identifier: createUserDto.userName,
       password: createUserDto.password,
     };
 
-    return this.login(loginDto);
+    return this.signin(signinDto);
   }
 
   async me(userId: string): Promise<User> {
@@ -74,7 +74,7 @@ export class AuthService {
     return user;
   }
 
-  async logout(userId: string): Promise<void> {
+  async signout(userId: string): Promise<void> {
     await this.userTokenService.removeTokensByUserId(
       userId,
       UserTokenType.RefreshToken,

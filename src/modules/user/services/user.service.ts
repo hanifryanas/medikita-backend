@@ -7,8 +7,8 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { compareSync } from 'bcryptjs';
 import { Repository } from 'typeorm';
-import { LoginDataDto } from '../../auth/dtos/login-data.dto';
-import { LoginDto } from '../../auth/dtos/login.dto';
+import { SigninDataDto } from '../../auth/dtos/signin-data.dto';
+import { SigninDto } from '../../auth/dtos/signin.dto';
 import { CreateUserDto } from '../dtos/create-user-dto';
 import { UpdateUserDto } from '../dtos/update-user-dto';
 import { User } from '../entities/user.entity';
@@ -67,29 +67,29 @@ export class UserService {
     return user;
   }
 
-  async validateUserCredential(loginDto: LoginDto): Promise<LoginDataDto> {
-    const user = await this.findOneByIdentifier(loginDto.identifier, [
+  async validateUserCredential(signinDto: SigninDto): Promise<SigninDataDto> {
+    const user = await this.findOneByIdentifier(signinDto.identifier, [
       'userId',
       'userName',
       'password',
       'role',
     ]);
 
-    const isPasswordValid = compareSync(loginDto.password, user?.password);
+    const isPasswordValid = compareSync(signinDto.password, user?.password);
 
     if (!isPasswordValid) {
       throw new UnauthorizedException(
-        `Invalid password for user '${loginDto.identifier}'`,
+        `Invalid password for user '${signinDto.identifier}'`,
       );
     }
 
-    const loginData: LoginDataDto = {
+    const signinData: SigninDataDto = {
       userId: user.userId,
       username: user.userName,
       role: user.role,
     };
 
-    return loginData;
+    return signinData;
   }
 
   async create(createUserDto: CreateUserDto): Promise<string> {
