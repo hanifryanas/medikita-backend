@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsDate,
   IsEnum,
@@ -86,6 +87,7 @@ export class CreateUserDto implements Partial<User> {
   })
   @IsDate()
   @IsNotEmpty()
+  @Type(() => Date)
   dateOfBirth: Date;
 
   @ApiPropertyOptional({

@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsDate, IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { formatDate } from 'date-fns';
 import { UserRole } from '../../user/enums/user-role.enum';
 import { EmployeeDepartment } from '../enums/employee-department.enum';
@@ -13,8 +14,9 @@ export class CreateEmployeeDto {
   @ApiProperty({
     example: formatDate(new Date(), 'yyyy-MM-dd'),
   })
-  @IsString()
+  @IsDate()
   @IsNotEmpty()
+  @Type(() => Date)
   startDate: Date;
 
   @ApiProperty({
