@@ -12,12 +12,12 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { BaseEntity } from '../../../common/entities/base.entity';
+import { Employee } from '../../employee/entities/employee.entity';
 import { UserGenderType } from '../enums/user-gender.enum';
 import { UserRole } from '../enums/user-role.enum';
+import { UserPatient } from './user-patient.entity';
 import { UserToken } from './user-token.entity';
-import { BaseEntity } from '../../../common/entities/base.entity';
-import { Patient } from '../../patient/entities/patient.entity';
-import { Employee } from '../../employee/entities/employee.entity';
 
 @Entity('User')
 export class User extends BaseEntity {
@@ -75,11 +75,13 @@ export class User extends BaseEntity {
     return differenceInYears(new Date(), new Date(this.dateOfBirth));
   }
 
-  @OneToOne(() => Patient, (patient) => patient.user)
-  patient?: Patient;
-
   @OneToOne(() => Employee, (employee) => employee.user)
   employee?: Employee;
+
+  @OneToMany(() => UserPatient, (userPatient) => userPatient.user, {
+    cascade: true,
+  })
+  userPatients?: UserPatient[];
 
   @Column({ nullable: true })
   address?: string;

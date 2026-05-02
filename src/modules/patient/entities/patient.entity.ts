@@ -1,25 +1,47 @@
-import {
-  Entity,
-  JoinColumn,
-  OneToMany,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { PatientInsurance } from './patient-insurance.entity';
+import { Expose } from 'class-transformer';
+import { differenceInYears } from 'date-fns';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
-import { User } from '../../user/entities/user.entity';
 import { Appointment } from '../../appointment/entities/appointment.entity';
+import { UserPatient } from '../../user/entities/user-patient.entity';
+import { UserGenderType } from '../../user/enums/user-gender.enum';
+import { PatientInsurance } from './patient-insurance.entity';
 
 @Entity('Patient')
 export class Patient extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   patientId: string;
 
-  @OneToOne(() => User, (user) => user.userId, {
-    onDelete: 'CASCADE',
+  @Column({ length: 20 })
+  identityNumber: string;
+
+  @Column({ length: 25 })
+  firstName: string;
+
+  @Column({ length: 25 })
+  lastName: string;
+
+  @Column({ type: 'enum', enum: UserGenderType })
+  gender: UserGenderType;
+
+  @Column()
+  phoneNumber: string;
+
+  @Column({ type: 'date' })
+  dateOfBirth: Date;
+
+  @Column({ nullable: true })
+  address?: string;
+
+  @Expose()
+  get age(): number {
+    return differenceInYears(new Date(), new Date(this.dateOfBirth));
+  }
+
+  @OneToMany(() => UserPatient, (userPatient) => userPatient.patient, {
+    cascade: true,
   })
-  @JoinColumn({ name: 'userId' })
-  user: User;
+  userPatients?: UserPatient[];
 
   @OneToMany(() => PatientInsurance, (insurance) => insurance.patient, {
     cascade: true,

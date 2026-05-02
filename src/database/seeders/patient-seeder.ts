@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { PatientInsurance } from '../../modules/patient/entities/patient-insurance.entity';
 import { Patient } from '../../modules/patient/entities/patient.entity';
 import { InsuranceProviderType } from '../../modules/patient/enums/insurance-provider.enum';
+import { UserPatient } from '../../modules/user/entities/user-patient.entity';
 import { User } from '../../modules/user/entities/user.entity';
 import { UserGenderType } from '../../modules/user/enums/user-gender.enum';
 
@@ -32,6 +33,7 @@ export class PatientSeeder implements Seeder {
           max: 2000,
           mode: 'year',
         }),
+        address: faker.location.streetAddress({ useFullAddress: true }),
       };
     },
   );
@@ -55,6 +57,8 @@ export class PatientSeeder implements Seeder {
     private readonly patientRepository: Repository<Patient>,
     @InjectRepository(PatientInsurance)
     private readonly patientInsuranceRepository: Repository<PatientInsurance>,
+    @InjectRepository(UserPatient)
+    private readonly userPatientRepository: Repository<UserPatient>,
   ) {}
 
   async seed() {
@@ -68,9 +72,16 @@ export class PatientSeeder implements Seeder {
           await this.userRepository.save(this.userRepository.create(user)),
       ),
     );
+
     const createPatients: Partial<Patient>[] = createdPatientUsers.map(
       (user) => ({
-        user: user,
+        identityNumber: user.identityNumber,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        gender: user.gender,
+        phoneNumber: user.phoneNumber,
+        dateOfBirth: user.dateOfBirth,
+        address: user.address,
       }),
     );
 
@@ -82,6 +93,19 @@ export class PatientSeeder implements Seeder {
           ),
       ),
     );
+
+    await Promise.all(
+      createdPatientUsers.map((user, index) =>
+        this.userPatientRepository.save(
+          this.userPatientRepository.create({
+            userId: user.userId,
+            patientId: createdPatients[index].patientId,
+            ordinal: 1,
+          }),
+        ),
+      ),
+    );
+
     this.generatedPatientInsurances.forEach((insurance, index) => {
       insurance.patient = createdPatients[index % createdPatients.length];
     });
