@@ -54,7 +54,7 @@ export class NurseScheduleService {
 
       return await this.nurseScheduleRepository.find({
         where: filterOption,
-        relations: ['nurse', 'nurse.employee', 'nurse.employee.user'],
+        relations: { nurse: { employee: { user: true } } },
       });
     }
 
@@ -64,7 +64,7 @@ export class NurseScheduleService {
   async findByNurseId(nurseId: string): Promise<NurseSchedule[]> {
     return await this.nurseScheduleRepository.find({
       where: { nurse: { nurseId } },
-      relations: ['nurse', 'nurse.employee', 'nurse.employee.user'],
+      relations: { nurse: { employee: { user: true } } },
     });
   }
 
@@ -83,36 +83,44 @@ export class NurseScheduleService {
   }
 
   async upsert(upsertNurseScheduleDto: UpsertNurseScheduleDto): Promise<void> {
-    await this.nurseScheduleRepository.delete({
-      nurse: { nurseId: upsertNurseScheduleDto.nurseId },
-    });
+    await this.nurseScheduleRepository.manager.transaction(async (manager) => {
+      const repo = manager.getRepository(NurseSchedule);
 
-    const schedulesWithNurse = upsertNurseScheduleDto.schedules.map(
-      (schedule) => ({
-        ...schedule,
+      await repo.delete({
         nurse: { nurseId: upsertNurseScheduleDto.nurseId },
-      }),
-    );
+      });
 
-    await this.nurseScheduleRepository.save(schedulesWithNurse);
+      const schedulesWithNurse = upsertNurseScheduleDto.schedules.map(
+        (schedule) => ({
+          ...schedule,
+          nurse: { nurseId: upsertNurseScheduleDto.nurseId },
+        }),
+      );
+
+      await repo.save(schedulesWithNurse);
+    });
   }
 
   async upsertByUserId(
     userId: string,
     upsertNurseScheduleDto: UpsertNurseScheduleDto,
   ): Promise<void> {
-    await this.nurseScheduleRepository.delete({
-      nurse: { employee: { user: { userId } } },
-    });
+    await this.nurseScheduleRepository.manager.transaction(async (manager) => {
+      const repo = manager.getRepository(NurseSchedule);
 
-    const schedulesWithNurse = upsertNurseScheduleDto.schedules.map(
-      (schedule) => ({
-        ...schedule,
+      await repo.delete({
         nurse: { employee: { user: { userId } } },
-      }),
-    );
+      });
 
-    await this.nurseScheduleRepository.save(schedulesWithNurse);
+      const schedulesWithNurse = upsertNurseScheduleDto.schedules.map(
+        (schedule) => ({
+          ...schedule,
+          nurse: { employee: { user: { userId } } },
+        }),
+      );
+
+      await repo.save(schedulesWithNurse);
+    });
   }
 
   async deleteByNurseId(nurseId: string): Promise<void> {

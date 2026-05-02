@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Post, Put, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { CurrentUserId } from '../../../common/decorators/current-user-id.decorator';
 import { Public } from '../../../common/decorators/public.decorator';
-import { AuthenticatedRequest } from '../../../common/interfaces/authenticated-request.interface';
 import { CreateUserDto } from '../../user/dtos/create-user-dto';
 import { UpdateUserDto } from '../../user/dtos/update-user-dto';
 import { User } from '../../user/entities/user.entity';
@@ -45,28 +45,22 @@ export class AuthController {
 
   @ApiBearerAuth()
   @Get('/me')
-  async getProfile(@Req() req: AuthenticatedRequest): Promise<User> {
-    const userId = req.user?.userId;
-
+  async getProfile(@CurrentUserId() userId: string): Promise<User> {
     return this.authService.me(userId);
   }
 
   @ApiBearerAuth()
   @Put('/me')
   async updateProfile(
-    @Req() req: AuthenticatedRequest,
+    @CurrentUserId() userId: string,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<void> {
-    const userId = req.user?.userId;
-
     return this.userService.update(userId, updateUserDto);
   }
 
   @ApiBearerAuth()
   @Post('/signout')
-  async signout(@Req() req: AuthenticatedRequest): Promise<void> {
-    const userId = req.user?.userId;
-
+  async signout(@CurrentUserId() userId: string): Promise<void> {
     return this.authService.signout(userId);
   }
 }

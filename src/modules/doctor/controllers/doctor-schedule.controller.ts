@@ -6,16 +6,15 @@ import {
   Param,
   Put,
   Query,
-  Req,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { CurrentUserId } from '../../../common/decorators/current-user-id.decorator';
 import { RequiredRole } from '../../../common/decorators/required-role.decorator';
 import { UserRole } from '../../user/enums/user-role.enum';
 import { FilterDoctorScheduleDto } from '../dtos/filter-doctor-schedule.dto';
 import { UpsertDoctorScheduleDto } from '../dtos/upsert-doctor-schedule.dto';
 import { DoctorSchedule } from '../entities/doctor-schedule.entity';
 import { DoctorScheduleService } from '../services/doctor-schedule.service';
-import { AuthenticatedRequest } from '../../../common/interfaces/authenticated-request.interface';
 
 @Controller('doctors/schedules')
 @ApiTags('Doctor-Schedule')
@@ -46,14 +45,9 @@ export class DoctorScheduleController {
   @RequiredRole(UserRole.Staff)
   @Put('me')
   async updateMe(
-    @Req() req: AuthenticatedRequest,
+    @CurrentUserId() userId: string,
     @Body() upsertDoctorScheduleDto: UpsertDoctorScheduleDto,
   ): Promise<void> {
-    const userId = req.user?.userId;
-    if (!userId) {
-      throw new Error('User ID not found in request');
-    }
-
     return await this.doctorScheduleService.upsertByUserId(
       userId,
       upsertDoctorScheduleDto,

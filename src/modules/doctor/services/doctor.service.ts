@@ -4,8 +4,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EmployeeService } from '../../employee/services/employee.service';
 import { Repository } from 'typeorm';
+import { Employee } from '../../employee/entities/employee.entity';
+import { EmployeeService } from '../../employee/services/employee.service';
 import { CreateDoctorDto } from '../dtos/create-doctor.dto';
 import { UpdateDoctorDto } from '../dtos/update-doctor.dto';
 import { Doctor } from '../entities/doctor.entity';
@@ -35,7 +36,7 @@ export class DoctorService {
           employeeId: employeeId,
         },
       },
-      relations: ['employee'],
+      relations: { employee: true },
     });
 
     if (!doctor) {
@@ -56,7 +57,7 @@ export class DoctorService {
           },
         },
       },
-      relations: ['employee', 'employee.user'],
+      relations: { employee: { user: true } },
     });
 
     if (!doctor) {
@@ -74,13 +75,13 @@ export class DoctorService {
     if (key && value) {
       return await this.doctorRepository.find({
         where: { [key]: value },
-        relations: ['employee', 'employee.user'],
+        relations: { employee: { user: true } },
         select: selection,
       });
     }
 
     return await this.doctorRepository.find({
-      relations: ['employee', 'employee.user'],
+      relations: { employee: { user: true } },
       select: selection,
     });
   }
@@ -88,34 +89,41 @@ export class DoctorService {
   async create(createDoctorDto: CreateDoctorDto): Promise<string> {
     const { ...employeeData } = createDoctorDto;
 
-    let currentEmployeeId: string | undefined = undefined;
+    return await this.doctorRepository.manager.transaction(async (manager) => {
+      const employeeRepo = manager.getRepository(Employee);
+      const doctorRepo = manager.getRepository(Doctor);
 
-    if (employeeData.userId) {
-      const currentEmployee = await this.employeeService.findOneByUserId(
-        employeeData.userId,
-        ['employeeId'],
-      );
-      currentEmployeeId = currentEmployee.employeeId;
-    } else {
-      currentEmployeeId = await this.employeeService.create(employeeData);
-    }
+      let currentEmployeeId: string | undefined = undefined;
 
-    if (!currentEmployeeId) {
-      throw new BadRequestException('Failed to create employee');
-    }
+      if (employeeData.userId) {
+        const currentEmployee = await this.employeeService.findOneByUserId(
+          employeeData.userId,
+          ['employeeId'],
+        );
+        currentEmployeeId = currentEmployee.employeeId;
+      } else {
+        const newEmployee = employeeRepo.create(employeeData);
+        const createdEmployee = await employeeRepo.save(newEmployee);
+        currentEmployeeId = createdEmployee?.employeeId;
+      }
 
-    const createDoctor = this.doctorRepository.create({
-      ...createDoctorDto,
-      employee: { employeeId: currentEmployeeId },
+      if (!currentEmployeeId) {
+        throw new BadRequestException('Failed to create employee');
+      }
+
+      const createDoctor = doctorRepo.create({
+        ...createDoctorDto,
+        employee: { employeeId: currentEmployeeId },
+      });
+
+      const createdDoctor = await doctorRepo.save(createDoctor);
+
+      if (!createdDoctor) {
+        throw new BadRequestException('Failed to create doctor');
+      }
+
+      return createdDoctor.doctorId;
     });
-
-    const createdDoctor = await this.doctorRepository.save(createDoctor);
-
-    if (!createdDoctor) {
-      throw new BadRequestException('Failed to create doctor');
-    }
-
-    return createdDoctor.doctorId;
   }
 
   async update(

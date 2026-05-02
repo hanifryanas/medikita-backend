@@ -7,11 +7,10 @@ import {
   Patch,
   Post,
   Query,
-  Req,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { CurrentUserId } from '../../../common/decorators/current-user-id.decorator';
 import { RequiredRole } from '../../../common/decorators/required-role.decorator';
-import { AuthenticatedRequest } from '../../../common/interfaces/authenticated-request.interface';
 import { UserRole } from '../../user/enums/user-role.enum';
 import { UserService } from '../../user/services/user.service';
 import { CreatePatientDto } from '../dtos/create-patient.dto';
@@ -38,12 +37,7 @@ export class PatientController {
 
   @RequiredRole(UserRole.User)
   @Get('me')
-  async findByMe(@Req() req: AuthenticatedRequest): Promise<Patient[]> {
-    const userId = req.user?.userId;
-    if (!userId) {
-      throw new Error('User ID not found in request');
-    }
-
+  async findByMe(@CurrentUserId() userId: string): Promise<Patient[]> {
     return await this.patientService.findAllByUserId(userId);
   }
 
@@ -67,14 +61,9 @@ export class PatientController {
   @RequiredRole(UserRole.User)
   @Patch('me/order')
   async reorderMine(
-    @Req() req: AuthenticatedRequest,
+    @CurrentUserId() userId: string,
     @Body() reorderDto: ReorderPatientsDto,
   ): Promise<void> {
-    const userId = req.user?.userId;
-    if (!userId) {
-      throw new Error('User ID not found in request');
-    }
-
     await this.patientService.reorderForUser(userId, reorderDto.items);
   }
 

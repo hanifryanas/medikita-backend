@@ -18,7 +18,7 @@ export class PatientInsuranceService {
   async findByPatientId(patientId: string): Promise<PatientInsurance[]> {
     return await this.patientInsuranceRepository.find({
       where: { patient: { patientId } },
-      relations: ['patient'],
+      relations: { patient: true },
     });
   }
 

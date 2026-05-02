@@ -6,15 +6,14 @@ import {
   Param,
   Post,
   Put,
-  Req,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { CurrentUserId } from '../../../common/decorators/current-user-id.decorator';
 import { RequiredRole } from '../../../common/decorators/required-role.decorator';
 import { UserRole } from '../../user/enums/user-role.enum';
 import { CreateNurseDto } from '../dtos/create-nurse.dto';
 import { Nurse } from '../entities/nurse.entity';
 import { NurseService } from '../services/nurse.service';
-import { AuthenticatedRequest } from '../../../common/interfaces/authenticated-request.interface';
 
 @Controller('nurses')
 @ApiTags('Nurse')
@@ -30,12 +29,7 @@ export class NurseController {
 
   @RequiredRole(UserRole.Staff)
   @Get('me')
-  async findMe(@Req() req: AuthenticatedRequest): Promise<Nurse> {
-    const userId = req.user?.userId;
-    if (!userId) {
-      throw new Error('User ID not found in request');
-    }
-
+  async findMe(@CurrentUserId() userId: string): Promise<Nurse> {
     return this.nurseService.findByUserId(userId);
   }
 
@@ -54,14 +48,9 @@ export class NurseController {
   @RequiredRole(UserRole.Staff)
   @Put('me')
   async updateMe(
-    @Req() req: AuthenticatedRequest,
+    @CurrentUserId() userId: string,
     @Body() updateNurseDto: CreateNurseDto,
   ): Promise<void> {
-    const userId = req.user?.userId;
-    if (!userId) {
-      throw new Error('User ID not found in request');
-    }
-
     await this.nurseService.update(userId, updateNurseDto);
   }
 
@@ -74,20 +63,9 @@ export class NurseController {
     await this.nurseService.update(nurseId, updateNurseDto);
   }
 
-  @RequiredRole(UserRole.Admin)
-  @Put(':nurseId')
-  async delete(@Param('nurseId') nurseId: string): Promise<void> {
-    return this.nurseService.delete(nurseId);
-  }
-
   @RequiredRole(UserRole.Staff)
-  @Put('me')
-  async deleteMe(@Req() req: AuthenticatedRequest): Promise<void> {
-    const userId = req.user?.userId;
-    if (!userId) {
-      throw new Error('User ID not found in request');
-    }
-
+  @Delete('me')
+  async deleteMe(@CurrentUserId() userId: string): Promise<void> {
     return this.nurseService.deleteByUserId(userId);
   }
 
@@ -95,16 +73,5 @@ export class NurseController {
   @Delete(':nurseId')
   async deleteById(@Param('nurseId') nurseId: string): Promise<void> {
     return this.nurseService.delete(nurseId);
-  }
-
-  @RequiredRole(UserRole.Staff)
-  @Delete('me')
-  async deleteMeByUserId(@Req() req: AuthenticatedRequest): Promise<void> {
-    const userId = req.user?.userId;
-    if (!userId) {
-      throw new Error('User ID not found in request');
-    }
-
-    return this.nurseService.deleteByUserId(userId);
   }
 }

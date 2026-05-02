@@ -69,7 +69,7 @@ export class UserTokenService {
   async validateRefreshToken(refreshToken: string): Promise<string> {
     const userToken = await this.userTokenRepository.findOne({
       where: { token: refreshToken, type: UserTokenType.RefreshToken },
-      relations: ['user'],
+      relations: { user: true },
     });
 
     if (!userToken) {

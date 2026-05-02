@@ -4,8 +4,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EmployeeService } from '../../employee/services/employee.service';
 import { Repository } from 'typeorm';
+import { Employee } from '../../employee/entities/employee.entity';
+import { EmployeeService } from '../../employee/services/employee.service';
 import { CreateNurseDto } from '../dtos/create-nurse.dto';
 import { UpdateNurseDto } from '../dtos/update-nurse.dto';
 import { Nurse } from '../entities/nurse.entity';
@@ -35,7 +36,7 @@ export class NurseService {
           employeeId: employeeId,
         },
       },
-      relations: ['employee'],
+      relations: { employee: true },
     });
 
     if (!nurse) {
@@ -56,7 +57,7 @@ export class NurseService {
           },
         },
       },
-      relations: ['employee', 'employee.user'],
+      relations: { employee: { user: true } },
     });
 
     if (!nurse) {
@@ -79,7 +80,7 @@ export class NurseService {
     }
 
     return await this.nurseRepository.find({
-      relations: ['employee', 'employee.user'],
+      relations: { employee: { user: true } },
       select: selection,
     });
   }
@@ -87,34 +88,41 @@ export class NurseService {
   async create(createNurseDto: CreateNurseDto): Promise<string> {
     const { title, ...employeeData } = createNurseDto;
 
-    let currentEmployeeId: string | undefined = undefined;
+    return await this.nurseRepository.manager.transaction(async (manager) => {
+      const employeeRepo = manager.getRepository(Employee);
+      const nurseRepo = manager.getRepository(Nurse);
 
-    if (employeeData.userId) {
-      const currentEmployee = await this.employeeService.findOneByUserId(
-        employeeData.userId,
-        ['employeeId'],
-      );
-      currentEmployeeId = currentEmployee.employeeId;
-    } else {
-      currentEmployeeId = await this.employeeService.create(employeeData);
-    }
+      let currentEmployeeId: string | undefined = undefined;
 
-    if (!currentEmployeeId) {
-      throw new BadRequestException('Failed to create employee for nurse');
-    }
+      if (employeeData.userId) {
+        const currentEmployee = await this.employeeService.findOneByUserId(
+          employeeData.userId,
+          ['employeeId'],
+        );
+        currentEmployeeId = currentEmployee.employeeId;
+      } else {
+        const newEmployee = employeeRepo.create(employeeData);
+        const createdEmployee = await employeeRepo.save(newEmployee);
+        currentEmployeeId = createdEmployee?.employeeId;
+      }
 
-    const nurse = this.nurseRepository.create({
-      title,
-      employee: { employeeId: currentEmployeeId },
+      if (!currentEmployeeId) {
+        throw new BadRequestException('Failed to create employee for nurse');
+      }
+
+      const nurse = nurseRepo.create({
+        title,
+        employee: { employeeId: currentEmployeeId },
+      });
+
+      const createdNurse = await nurseRepo.save(nurse);
+
+      if (!createdNurse) {
+        throw new BadRequestException('Failed to create nurse');
+      }
+
+      return createdNurse.nurseId;
     });
-
-    const createdNurse = await this.nurseRepository.save(nurse);
-
-    if (!createdNurse) {
-      throw new BadRequestException('Failed to create nurse');
-    }
-
-    return createdNurse.nurseId;
   }
 
   async update(nurseId: string, updateNurseDto: UpdateNurseDto): Promise<void> {
