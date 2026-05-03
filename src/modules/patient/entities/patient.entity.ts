@@ -52,6 +52,9 @@ export class Patient extends BaseEntity {
   @OneToMany(() => Appointment, (appointment) => appointment.patient)
   appointments?: Appointment[];
 
-  @Expose()
+  @Expose({ groups: ['patient-for-user'], toPlainOnly: true })
   relationship?: UserRelationship;
+
+  @Expose({ groups: ['patient-for-user'], toPlainOnly: true })
+  ordinal?: number;
 }

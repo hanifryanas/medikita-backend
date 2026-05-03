@@ -66,10 +66,32 @@ export class PatientService {
       relations: { patient: true },
     });
 
-    return userPatients.map(({ patient, relationship }) => {
+    return userPatients.map(({ patient, relationship, ordinal }) => {
       patient.relationship = relationship;
+      patient.ordinal = ordinal;
       return patient;
     });
+  }
+
+  async findOneByUserAndPatientId(
+    userId: string,
+    patientId: string,
+  ): Promise<Patient> {
+    const userPatient = await this.userPatientRepository.findOne({
+      where: { userId, patientId },
+      relations: { patient: true },
+    });
+
+    if (!userPatient) {
+      throw new NotFoundException(
+        `Patient with ID ${patientId} not linked to this user`,
+      );
+    }
+
+    const { patient, relationship, ordinal } = userPatient;
+    patient.relationship = relationship;
+    patient.ordinal = ordinal;
+    return patient;
   }
 
   async create(patient: Partial<Patient>): Promise<string> {

@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  SerializeOptions,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUserId } from '../../../common/decorators/current-user-id.decorator';
@@ -37,8 +38,22 @@ export class PatientController {
 
   @RequiredRole(UserRole.User)
   @Get('me')
+  @SerializeOptions({ groups: ['patient-for-user'] })
   async findByMe(@CurrentUserId() userId: string): Promise<Patient[]> {
     return await this.patientService.findAllByUserId(userId);
+  }
+
+  @RequiredRole(UserRole.User)
+  @Get('me/:patientId')
+  @SerializeOptions({ groups: ['patient-for-user'] })
+  async findOneByMe(
+    @CurrentUserId() userId: string,
+    @Param('patientId') patientId: string,
+  ): Promise<Patient> {
+    return await this.patientService.findOneByUserAndPatientId(
+      userId,
+      patientId,
+    );
   }
 
   @RequiredRole(UserRole.Staff)
@@ -47,6 +62,7 @@ export class PatientController {
     return await this.patientService.findOneBy('patientId', patientId);
   }
 
+  @RequiredRole(UserRole.User)
   @Post()
   async create(@Body() createPatientDto: CreatePatientDto): Promise<string> {
     const { userId, relationship, ...patientData } = createPatientDto;
