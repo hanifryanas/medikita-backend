@@ -5,6 +5,7 @@ import { BaseEntity } from '../../../common/entities/base.entity';
 import { Appointment } from '../../appointment/entities/appointment.entity';
 import { UserPatient } from '../../user/entities/user-patient.entity';
 import { UserGenderType } from '../../user/enums/user-gender.enum';
+import { UserRelationship } from '../../user/enums/user-relationship.enum';
 import { PatientInsurance } from './patient-insurance.entity';
 
 @Entity('Patient')
@@ -50,4 +51,7 @@ export class Patient extends BaseEntity {
 
   @OneToMany(() => Appointment, (appointment) => appointment.patient)
   appointments?: Appointment[];
+
+  @Expose()
+  relationship?: UserRelationship;
 }

@@ -2,6 +2,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, In, Not, Repository } from 'typeorm';
 import { UserPatient } from '../../user/entities/user-patient.entity';
+import { UserRelationship } from '../../user/enums/user-relationship.enum';
 import { FilterPatientDto } from '../dtos/filter-patient.dto';
 import { ReorderPatientItemDto } from '../dtos/reorder-patients.dto';
 import { UpdatePatientDto } from '../dtos/update-patient.dto';
@@ -59,13 +60,16 @@ export class PatientService {
   }
 
   async findAllByUserId(userId: string): Promise<Patient[]> {
-    const links = await this.userPatientRepository.find({
+    const userPatients = await this.userPatientRepository.find({
       where: { userId },
       order: { ordinal: 'ASC' },
       relations: { patient: true },
     });
 
-    return links.map((link) => link.patient);
+    return userPatients.map(({ patient, relationship }) => {
+      patient.relationship = relationship;
+      return patient;
+    });
   }
 
   async create(patient: Partial<Patient>): Promise<string> {
@@ -79,23 +83,25 @@ export class PatientService {
     return createdPatient.patientId;
   }
 
-  async linkUser(userId: string, patientId: string): Promise<void> {
-    const existing = await this.userPatientRepository.findOne({
+  async linkUser(
+    userId: string,
+    patientId: string,
+    relationship: UserRelationship,
+  ): Promise<void> {
+    const existingUserPatient = await this.userPatientRepository.findOne({
       where: { userId, patientId },
     });
-    if (existing) return;
+    if (existingUserPatient) return;
 
-    const last = await this.userPatientRepository.findOne({
-      where: { userId },
-      order: { ordinal: 'DESC' },
-    });
-    const nextOrdinal = (last?.ordinal ?? 0) + 1;
+    const nextOrdinal =
+      (await this.userPatientRepository.count({ where: { userId } })) + 1;
 
     await this.userPatientRepository.save(
       this.userPatientRepository.create({
         userId,
         patientId,
         ordinal: nextOrdinal,
+        relationship,
       }),
     );
   }
@@ -120,13 +126,13 @@ export class PatientService {
     userId: string,
     items: ReorderPatientItemDto[],
   ): Promise<void> {
-    const patientIds = items.map((i) => i.patientId);
+    const requestedPatientIds = items.map((item) => item.patientId);
 
-    if (patientIds.length > 0) {
-      const existing = await this.userPatientRepository.find({
-        where: { userId, patientId: In(patientIds) },
+    if (requestedPatientIds.length > 0) {
+      const linkedUserPatients = await this.userPatientRepository.find({
+        where: { userId, patientId: In(requestedPatientIds) },
       });
-      if (existing.length !== new Set(patientIds).size) {
+      if (linkedUserPatients.length !== new Set(requestedPatientIds).size) {
         throw new BadRequestException(
           'Reorder payload contains patients not linked to this user',
         );
@@ -134,10 +140,10 @@ export class PatientService {
     }
 
     await this.userPatientRepository.manager.transaction(async (manager) => {
-      const repo = manager.getRepository(UserPatient);
+      const userPatientRepository = manager.getRepository(UserPatient);
 
       if (items.length > 0) {
-        await repo.upsert(
+        await userPatientRepository.upsert(
           items.map((item) => ({
             userId,
             patientId: item.patientId,
@@ -147,9 +153,11 @@ export class PatientService {
         );
       }
 
-      await repo.delete({
+      await userPatientRepository.delete({
         userId,
-        ...(patientIds.length > 0 ? { patientId: Not(In(patientIds)) } : {}),
+        ...(requestedPatientIds.length > 0
+          ? { patientId: Not(In(requestedPatientIds)) }
+          : {}),
       });
     });
   }

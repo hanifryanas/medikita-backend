@@ -8,12 +8,22 @@ import {
   IsString,
 } from 'class-validator';
 import { UserGenderType } from '../../user/enums/user-gender.enum';
+import { UserRelationship } from '../../user/enums/user-relationship.enum';
 
 export class CreatePatientDto {
   @ApiProperty({ description: 'User to link this patient profile to' })
   @IsString()
   @IsNotEmpty()
   userId: string;
+
+  @ApiProperty({
+    enum: UserRelationship,
+    enumName: 'UserRelationship',
+    description: 'Relationship of the user to this patient profile',
+    example: UserRelationship.Self,
+  })
+  @IsEnum(UserRelationship)
+  relationship: UserRelationship;
 
   @ApiProperty()
   @IsString()
@@ -30,7 +40,11 @@ export class CreatePatientDto {
   @IsNotEmpty()
   lastName: string;
 
-  @ApiProperty({ enum: UserGenderType, enumName: 'UserGenderType' })
+  @ApiProperty({
+    enum: UserGenderType,
+    enumName: 'UserGenderType',
+    example: UserGenderType.Male,
+  })
   @IsEnum(UserGenderType)
   gender: UserGenderType;
 

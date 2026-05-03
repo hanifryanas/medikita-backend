@@ -49,11 +49,11 @@ export class PatientController {
 
   @Post()
   async create(@Body() createPatientDto: CreatePatientDto): Promise<string> {
-    const { userId, ...patientData } = createPatientDto;
+    const { userId, relationship, ...patientData } = createPatientDto;
     await this.userService.findOneBy({ userId });
 
     const patientId = await this.patientService.create(patientData);
-    await this.patientService.linkUser(userId, patientId);
+    await this.patientService.linkUser(userId, patientId, relationship);
 
     return patientId;
   }

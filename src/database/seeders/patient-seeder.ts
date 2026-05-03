@@ -9,6 +9,7 @@ import { InsuranceProviderType } from '../../modules/patient/enums/insurance-pro
 import { UserPatient } from '../../modules/user/entities/user-patient.entity';
 import { User } from '../../modules/user/entities/user.entity';
 import { UserGenderType } from '../../modules/user/enums/user-gender.enum';
+import { UserRelationship } from '../../modules/user/enums/user-relationship.enum';
 
 @Injectable()
 export class PatientSeeder implements Seeder {
@@ -101,6 +102,7 @@ export class PatientSeeder implements Seeder {
             userId: user.userId,
             patientId: createdPatients[index].patientId,
             ordinal: 1,
+            relationship: UserRelationship.Self,
           }),
         ),
       ),

@@ -6,12 +6,13 @@ export class CreatePatientInsuranceDto {
   @ApiProperty({
     enum: InsuranceProviderType,
     enumName: 'InsuranceProviderType',
+    example: InsuranceProviderType.BPJS,
   })
   @IsEnum(InsuranceProviderType)
   @IsNotEmpty()
   insuranceProvider: InsuranceProviderType;
 
-  @ApiProperty()
+  @ApiProperty({ example: '3567011908010003' })
   @IsString()
   @IsNotEmpty()
   policyNumber: string;
