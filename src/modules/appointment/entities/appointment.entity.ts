@@ -1,16 +1,17 @@
-import { Status } from '../../../common/enums/status.enum';
-import { Doctor } from '../../doctor/entities/doctor.entity';
-import { Nurse } from '../../nurse/entities/nurse.entity';
-import { Patient } from '../../patient/entities/patient.entity';
 import {
-  BaseEntity,
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { BaseEntity } from '../../../common/entities/base.entity';
+import { Status } from '../../../common/enums/status.enum';
+import { Doctor } from '../../doctor/entities/doctor.entity';
+import { Nurse } from '../../nurse/entities/nurse.entity';
+import { Patient } from '../../patient/entities/patient.entity';
 
 @Entity('Appointment')
 export class Appointment extends BaseEntity {
@@ -35,7 +36,14 @@ export class Appointment extends BaseEntity {
   doctor: Doctor;
 
   @ManyToMany(() => Nurse, (nurse) => nurse.appointments)
-  @JoinColumn({ name: 'nurseId' })
+  @JoinTable({
+    name: 'AppointmentNurse',
+    joinColumn: {
+      name: 'appointmentId',
+      referencedColumnName: 'appointmentId',
+    },
+    inverseJoinColumn: { name: 'nurseId', referencedColumnName: 'nurseId' },
+  })
   nurses?: Nurse[];
 
   @Column({ type: 'text' })

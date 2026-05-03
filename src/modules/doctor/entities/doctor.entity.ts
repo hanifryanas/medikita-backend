@@ -1,6 +1,4 @@
 import { Expose } from 'class-transformer';
-import { BaseEntity } from '../../../common/entities/base.entity';
-import { Employee } from '../../employee/entities/employee.entity';
 import {
   Column,
   Entity,
@@ -9,9 +7,11 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { DoctorSchedule } from './doctor-schedule.entity';
-import { Appointment } from '../../appointment/entities/appointment.entity';
+import { BaseEntity } from '../../../common/entities/base.entity';
 import { Status } from '../../../common/enums/status.enum';
+import { Appointment } from '../../appointment/entities/appointment.entity';
+import { Employee } from '../../employee/entities/employee.entity';
+import { DoctorSchedule } from './doctor-schedule.entity';
 
 @Entity('Doctor')
 export class Doctor extends BaseEntity {
@@ -27,9 +27,7 @@ export class Doctor extends BaseEntity {
   @Column({ nullable: true, length: 50 })
   title?: string;
 
-  @OneToMany(() => DoctorSchedule, (schedule) => schedule.doctor, {
-    onDelete: 'CASCADE',
-  })
+  @OneToMany(() => DoctorSchedule, (schedule) => schedule.doctor)
   schedules?: DoctorSchedule[];
 
   @OneToMany(() => Appointment, (appointment) => appointment.doctor)

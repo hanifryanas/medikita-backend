@@ -8,11 +8,11 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { NurseSchedule } from './nurse-schedule.entity';
 import { BaseEntity } from '../../../common/entities/base.entity';
-import { Employee } from '../../employee/entities/employee.entity';
-import { Appointment } from '../../appointment/entities/appointment.entity';
 import { Status } from '../../../common/enums/status.enum';
+import { Appointment } from '../../appointment/entities/appointment.entity';
+import { Employee } from '../../employee/entities/employee.entity';
+import { NurseSchedule } from './nurse-schedule.entity';
 
 @Entity('Nurse')
 export class Nurse extends BaseEntity {
@@ -28,9 +28,7 @@ export class Nurse extends BaseEntity {
   @Column({ nullable: true, length: 50 })
   title?: string;
 
-  @OneToMany(() => NurseSchedule, (schedule) => schedule.nurse, {
-    onDelete: 'CASCADE',
-  })
+  @OneToMany(() => NurseSchedule, (schedule) => schedule.nurse)
   schedules?: NurseSchedule[];
 
   @ManyToMany(() => Appointment, (appointment) => appointment.nurses)
