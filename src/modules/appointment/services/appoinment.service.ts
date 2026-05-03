@@ -4,8 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Appointment } from '../entities/appointment.entity';
 import { Repository } from 'typeorm';
+import { Appointment } from '../entities/appointment.entity';
 
 @Injectable()
 export class AppointmentService {
@@ -74,14 +74,14 @@ export class AppointmentService {
   async create(appointmentData: Partial<Appointment>): Promise<string> {
     const newAppointment = this.appointmentRepository.create(appointmentData);
 
-    const createdAppoinment =
+    const createdAppointment =
       await this.appointmentRepository.save(newAppointment);
 
-    if (!createdAppoinment) {
+    if (!createdAppointment) {
       throw new BadRequestException('Failed to create appointment');
     }
 
-    return createdAppoinment.appointmentId;
+    return createdAppointment.appointmentId;
   }
 
   async update(

@@ -20,12 +20,12 @@ export class DoctorSeeder implements Seeder {
       const gender = faker.person.sexType() as UserGenderType;
       const firstName = faker.person.firstName(gender);
       const lastName = faker.person.lastName(gender);
-      const base = `${firstName}${lastName}`.toLowerCase().slice(0, 15);
+      const usernameBase = `${firstName}${lastName}`.toLowerCase().slice(0, 15);
       return {
         identityNumber: faker.string.numeric(16),
-        email: `${base}@mail.com`,
-        userName: base,
-        password: base,
+        email: `${usernameBase}@mail.com`,
+        userName: usernameBase,
+        password: usernameBase,
         firstName: firstName,
         lastName: lastName,
         gender,
@@ -95,9 +95,9 @@ export class DoctorSeeder implements Seeder {
   ) {}
 
   async seed() {
-    const existingDoctors = await this.doctorRepository.count();
-    const isDoctorsExist = existingDoctors > 0;
-    if (isDoctorsExist) return;
+    const existingDoctorCount = await this.doctorRepository.count();
+    const hasExistingDoctors = existingDoctorCount > 0;
+    if (hasExistingDoctors) return;
 
     const createdDoctorUsers = await Promise.all(
       this.generatedDoctorUsers.map(

@@ -63,9 +63,8 @@ export class EmployeeService {
   }
 
   async create(employee: Partial<Employee>): Promise<string> {
-    const createEmployeeDto = this.employeeRepository.create(employee);
-    const createdEmployee =
-      await this.employeeRepository.save(createEmployeeDto);
+    const newEmployee = this.employeeRepository.create(employee);
+    const createdEmployee = await this.employeeRepository.save(newEmployee);
 
     if (!createdEmployee) {
       throw new BadRequestException('Failed to create employee');
@@ -83,24 +82,24 @@ export class EmployeeService {
 
     return await this.employeeRepository.manager.transaction(
       async (manager) => {
-        const employeeRepo = manager.getRepository(Employee);
-        const userRepo = manager.getRepository(User);
+        const employeeRepository = manager.getRepository(Employee);
+        const userRepository = manager.getRepository(User);
 
-        const newEmployee = employeeRepo.create({
+        const newEmployee = employeeRepository.create({
           ...createEmployeeDto,
           user,
         });
-        const createdEmployee = await employeeRepo.save(newEmployee);
+        const createdEmployee = await employeeRepository.save(newEmployee);
 
         if (!createdEmployee) {
           throw new BadRequestException('Failed to create employee');
         }
 
-        const result = await userRepo.update(user.userId, {
+        const updateUserResult = await userRepository.update(user.userId, {
           role: createEmployeeDto.role,
         });
 
-        if (!result.affected) {
+        if (!updateUserResult.affected) {
           throw new BadRequestException(
             `Failed to update user role for ID ${user.userId}`,
           );
@@ -123,22 +122,24 @@ export class EmployeeService {
 
   async removeAndDemote(userId: string): Promise<void> {
     await this.employeeRepository.manager.transaction(async (manager) => {
-      const employeeRepo = manager.getRepository(Employee);
-      const userRepo = manager.getRepository(User);
+      const employeeRepository = manager.getRepository(Employee);
+      const userRepository = manager.getRepository(User);
 
-      const deleteResult = await employeeRepo.delete({ user: { userId } });
+      const deleteEmployeeResult = await employeeRepository.delete({
+        user: { userId },
+      });
 
-      if (!deleteResult.affected) {
+      if (!deleteEmployeeResult.affected) {
         throw new BadRequestException(
           `Failed to delete employee for user with ID ${userId}`,
         );
       }
 
-      const updateResult = await userRepo.update(userId, {
+      const updateUserResult = await userRepository.update(userId, {
         role: UserRole.User,
       });
 
-      if (!updateResult.affected) {
+      if (!updateUserResult.affected) {
         throw new BadRequestException(
           `Failed to update user role for ID ${userId}`,
         );

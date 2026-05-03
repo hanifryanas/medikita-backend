@@ -94,9 +94,9 @@ export class DoctorScheduleService {
     upsertDoctorScheduleDto: UpsertDoctorScheduleDto,
   ): Promise<void> {
     await this.doctorScheduleRepository.manager.transaction(async (manager) => {
-      const repo = manager.getRepository(DoctorSchedule);
+      const doctorScheduleRepository = manager.getRepository(DoctorSchedule);
 
-      await repo.delete({
+      await doctorScheduleRepository.delete({
         doctor: { doctorId: upsertDoctorScheduleDto.doctorId },
       });
 
@@ -107,7 +107,7 @@ export class DoctorScheduleService {
         }),
       );
 
-      await repo.save(schedulesWithDoctor);
+      await doctorScheduleRepository.save(schedulesWithDoctor);
     });
   }
 
@@ -116,9 +116,9 @@ export class DoctorScheduleService {
     upsertDoctorScheduleDto: UpsertDoctorScheduleDto,
   ): Promise<void> {
     await this.doctorScheduleRepository.manager.transaction(async (manager) => {
-      const repo = manager.getRepository(DoctorSchedule);
+      const doctorScheduleRepository = manager.getRepository(DoctorSchedule);
 
-      await repo.delete({
+      await doctorScheduleRepository.delete({
         doctor: { employee: { user: { userId } } },
       });
 
@@ -129,16 +129,16 @@ export class DoctorScheduleService {
         }),
       );
 
-      await repo.save(schedulesWithDoctor);
+      await doctorScheduleRepository.save(schedulesWithDoctor);
     });
   }
 
   async deleteByDoctorId(doctorId: string): Promise<void> {
-    const doctor = await this.doctorScheduleRepository.findOne({
+    const doctorSchedule = await this.doctorScheduleRepository.findOne({
       where: { doctor: { doctorId } },
     });
 
-    if (!doctor) {
+    if (!doctorSchedule) {
       throw new NotFoundException(
         `Doctor schedule for Doctor ID ${doctorId} not found`,
       );

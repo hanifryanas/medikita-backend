@@ -68,13 +68,13 @@ export class DoctorService {
   }
 
   async findAll(
-    key?: keyof Doctor,
+    field?: keyof Doctor,
     value?: Doctor[keyof Doctor],
     selection?: (keyof Doctor)[],
   ): Promise<Doctor[]> {
-    if (key && value) {
+    if (field && value) {
       return await this.doctorRepository.find({
-        where: { [key]: value },
+        where: { [field]: value },
         relations: { employee: { user: true } },
         select: selection,
       });
@@ -87,36 +87,34 @@ export class DoctorService {
   }
 
   async create(createDoctorDto: CreateDoctorDto): Promise<string> {
-    const { ...employeeData } = createDoctorDto;
-
     return await this.doctorRepository.manager.transaction(async (manager) => {
-      const employeeRepo = manager.getRepository(Employee);
-      const doctorRepo = manager.getRepository(Doctor);
+      const employeeRepository = manager.getRepository(Employee);
+      const doctorRepository = manager.getRepository(Doctor);
 
-      let currentEmployeeId: string | undefined = undefined;
+      let resolvedEmployeeId: string | undefined = undefined;
 
-      if (employeeData.userId) {
-        const currentEmployee = await this.employeeService.findOneByUserId(
-          employeeData.userId,
+      if (createDoctorDto.userId) {
+        const existingEmployee = await this.employeeService.findOneByUserId(
+          createDoctorDto.userId,
           ['employeeId'],
         );
-        currentEmployeeId = currentEmployee.employeeId;
+        resolvedEmployeeId = existingEmployee.employeeId;
       } else {
-        const newEmployee = employeeRepo.create(employeeData);
-        const createdEmployee = await employeeRepo.save(newEmployee);
-        currentEmployeeId = createdEmployee?.employeeId;
+        const newEmployee = employeeRepository.create(createDoctorDto);
+        const createdEmployee = await employeeRepository.save(newEmployee);
+        resolvedEmployeeId = createdEmployee?.employeeId;
       }
 
-      if (!currentEmployeeId) {
+      if (!resolvedEmployeeId) {
         throw new BadRequestException('Failed to create employee');
       }
 
-      const createDoctor = doctorRepo.create({
+      const newDoctor = doctorRepository.create({
         ...createDoctorDto,
-        employee: { employeeId: currentEmployeeId },
+        employee: { employeeId: resolvedEmployeeId },
       });
 
-      const createdDoctor = await doctorRepo.save(createDoctor);
+      const createdDoctor = await doctorRepository.save(newDoctor);
 
       if (!createdDoctor) {
         throw new BadRequestException('Failed to create doctor');
