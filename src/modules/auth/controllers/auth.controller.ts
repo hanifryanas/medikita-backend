@@ -52,7 +52,7 @@ export class AuthController {
 
   @ApiBearerAuth()
   @Get('/me')
-  @SerializeOptions({ groups: ['me'] })
+  @SerializeOptions({ groups: ['user-full'] })
   async getProfile(@CurrentUserId() userId: string): Promise<User> {
     return this.authService.me(userId);
   }

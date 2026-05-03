@@ -65,7 +65,9 @@ export class AuthService {
   }
 
   async me(userId: string): Promise<User> {
-    const user = await this.userService.findOneBy({ userId });
+    const user = await this.userService.findOneBy({ userId }, undefined, {
+      employee: true,
+    });
 
     if (!user) {
       throw new NotFoundException('User not found');

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { compareSync } from 'bcryptjs';
-import { Repository } from 'typeorm';
+import { FindOptionsRelations, Repository } from 'typeorm';
 import { SigninDataDto } from '../../auth/dtos/signin-data.dto';
 import { SigninDto } from '../../auth/dtos/signin.dto';
 import { CreateUserDto } from '../dtos/create-user-dto';
@@ -32,10 +32,12 @@ export class UserService {
   async findOneBy(
     partialUser: Partial<User>,
     selection?: (keyof User)[],
+    relations?: FindOptionsRelations<User>,
   ): Promise<User> {
     const user = await this.userRepository.findOne({
       where: partialUser,
       select: selection,
+      relations,
     });
 
     if (!user) {

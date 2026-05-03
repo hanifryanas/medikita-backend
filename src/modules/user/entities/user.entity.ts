@@ -78,6 +78,11 @@ export class User extends BaseEntity {
   @OneToOne(() => Employee, (employee) => employee.user)
   employee?: Employee;
 
+  @Expose({ groups: ['user-full'], toPlainOnly: true })
+  get isEmployee(): boolean {
+    return !!this.employee;
+  }
+
   @OneToMany(() => UserPatient, (userPatient) => userPatient.user)
   userPatients?: UserPatient[];
 
@@ -86,7 +91,7 @@ export class User extends BaseEntity {
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.User })
   @Exclude({ toPlainOnly: true })
-  @Expose({ groups: ['me'], toPlainOnly: true })
+  @Expose({ groups: ['user-full'], toPlainOnly: true })
   role: UserRole;
 
   @Exclude({ toPlainOnly: true })
