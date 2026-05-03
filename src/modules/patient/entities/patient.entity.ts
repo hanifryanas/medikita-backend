@@ -13,6 +13,9 @@ export class Patient extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   patientId: string;
 
+  @Column({ length: 11, unique: true })
+  medicalRecordNumber: string;
+
   @Column({ length: 20 })
   identityNumber: string;
 

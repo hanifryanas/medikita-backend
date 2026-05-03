@@ -7,7 +7,6 @@ import { FilterPatientDto } from '../dtos/filter-patient.dto';
 import { ReorderPatientItemDto } from '../dtos/reorder-patients.dto';
 import { UpdatePatientDto } from '../dtos/update-patient.dto';
 import { Patient } from '../entities/patient.entity';
-
 export class PatientService {
   constructor(
     @InjectRepository(Patient)
@@ -95,8 +94,8 @@ export class PatientService {
   }
 
   async create(patient: Partial<Patient>): Promise<string> {
-    const createPatientDto = this.patientRepository.create(patient);
-    const createdPatient = await this.patientRepository.save(createPatientDto);
+    const newPatient = this.patientRepository.create(patient);
+    const createdPatient = await this.patientRepository.save(newPatient);
 
     if (!createdPatient) {
       throw new BadRequestException('Failed to create patient');
