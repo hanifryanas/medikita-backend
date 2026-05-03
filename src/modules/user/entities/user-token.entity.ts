@@ -5,9 +5,9 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { BaseEntity } from '../../../common/entities/base.entity';
 import { UserTokenType } from '../enums/user-token.enum';
 import { User } from './user.entity';
-import { BaseEntity } from '../../../common/entities/base.entity';
 
 @Entity('UserToken')
 export class UserToken extends BaseEntity {

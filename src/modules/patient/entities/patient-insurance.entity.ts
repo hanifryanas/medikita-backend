@@ -5,9 +5,9 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { BaseEntity } from '../../../common/entities/base.entity';
 import { InsuranceProviderType } from '../enums/insurance-provider.enum';
 import { Patient } from './patient.entity';
-import { BaseEntity } from '../../../common/entities/base.entity';
 
 @Entity('PatientInsurance')
 export class PatientInsurance extends BaseEntity {
