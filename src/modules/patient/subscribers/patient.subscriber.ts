@@ -8,7 +8,7 @@ import { formatSequence, yearMonthFormat } from '../../../common/functions';
 import { MedicalRecordCounter } from '../entities/medical-record-counter.entity';
 import { Patient } from '../entities/patient.entity';
 
-const MEDICAL_RECORD_SEQUENCE_DIGITS = 5;
+const MEDICAL_RECORD_SEQUENCE_DIGITS = 6;
 
 @EventSubscriber()
 export class PatientSubscriber implements EntitySubscriberInterface<Patient> {
