@@ -1,4 +1,11 @@
-import { Body, Controller, Get, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Put,
+  SerializeOptions,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { CurrentUserId } from '../../../common/decorators/current-user-id.decorator';
 import { Public } from '../../../common/decorators/public.decorator';
@@ -45,6 +52,7 @@ export class AuthController {
 
   @ApiBearerAuth()
   @Get('/me')
+  @SerializeOptions({ groups: ['me'] })
   async getProfile(@CurrentUserId() userId: string): Promise<User> {
     return this.authService.me(userId);
   }

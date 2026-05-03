@@ -78,9 +78,7 @@ export class User extends BaseEntity {
   @OneToOne(() => Employee, (employee) => employee.user)
   employee?: Employee;
 
-  @OneToMany(() => UserPatient, (userPatient) => userPatient.user, {
-    cascade: true,
-  })
+  @OneToMany(() => UserPatient, (userPatient) => userPatient.user)
   userPatients?: UserPatient[];
 
   @Column({ nullable: true })
@@ -88,10 +86,11 @@ export class User extends BaseEntity {
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.User })
   @Exclude({ toPlainOnly: true })
+  @Expose({ groups: ['me'], toPlainOnly: true })
   role: UserRole;
 
   @Exclude({ toPlainOnly: true })
   @ApiHideProperty()
-  @OneToMany(() => UserToken, (token) => token.user, { cascade: true })
+  @OneToMany(() => UserToken, (token) => token.user)
   tokens?: UserToken[];
 }
