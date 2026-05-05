@@ -1,4 +1,4 @@
-import { faker } from '@faker-js/faker';
+import { fakerID_ID as faker } from '@faker-js/faker';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Seeder } from 'nestjs-seeder';
@@ -53,7 +53,7 @@ export class EmployeeAdminSeeder implements Seeder {
     const employeeAdmins: Partial<Employee>[] = createdUsers.map((user) => {
       const department = departments.find(
         (dept) => `${dept.typeCode}admin` === user.userName,
-      )!;
+      );
       return {
         user,
         startDate: new Date(),

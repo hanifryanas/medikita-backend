@@ -1,4 +1,4 @@
-import { faker } from '@faker-js/faker';
+import { fakerID_ID as faker } from '@faker-js/faker';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Seeder } from 'nestjs-seeder';
 import { Repository } from 'typeorm';

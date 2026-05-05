@@ -1,4 +1,4 @@
-import { faker } from '@faker-js/faker';
+import { fakerID_ID as faker } from '@faker-js/faker';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Seeder } from 'nestjs-seeder';
@@ -34,7 +34,7 @@ export class PatientSeeder implements Seeder {
           max: 2000,
           mode: 'year',
         }),
-        address: faker.location.streetAddress({ useFullAddress: true }),
+        address: `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.state()}`,
       };
     },
   );
