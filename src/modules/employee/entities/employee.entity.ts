@@ -1,17 +1,18 @@
 import { Expose } from 'class-transformer';
-import { BaseEntity } from '../../../common/entities/base.entity';
 import { differenceInDays } from 'date-fns';
-import { Doctor } from '../../doctor/entities/doctor.entity';
-import { Nurse } from '../../nurse/entities/nurse.entity';
-import { User } from '../../user/entities/user.entity';
 import {
   Column,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { EmployeeDepartment } from '../enums/employee-department.enum';
+import { BaseEntity } from '../../../common/entities/base.entity';
+import { Department } from '../../department/entities/department.entity';
+import { Doctor } from '../../doctor/entities/doctor.entity';
+import { Nurse } from '../../nurse/entities/nurse.entity';
+import { User } from '../../user/entities/user.entity';
 
 @Entity('Employee')
 export class Employee extends BaseEntity {
@@ -70,6 +71,12 @@ export class Employee extends BaseEntity {
     return result.trim();
   }
 
-  @Column({ type: 'enum', enum: EmployeeDepartment })
-  department: EmployeeDepartment;
+  @Column({ type: 'int' })
+  departmentId: number;
+
+  @ManyToOne(() => Department, (department) => department.employees, {
+    eager: true,
+  })
+  @JoinColumn({ name: 'departmentId' })
+  department: Department;
 }

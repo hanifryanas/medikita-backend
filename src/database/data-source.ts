@@ -13,5 +13,8 @@ export default new DataSource({
   password: process.env.DB_PASSWORD,
   entities: [join(__dirname, '../modules/**/entities/*.entity{.ts,.js}')],
   migrations: [join(__dirname, 'migrations/*.ts')],
+  subscribers: [
+    join(__dirname, '../modules/**/subscribers/*.subscriber{.ts,.js}'),
+  ],
   synchronize: false,
 });

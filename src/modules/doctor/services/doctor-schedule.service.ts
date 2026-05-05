@@ -34,7 +34,7 @@ export class DoctorScheduleService {
         };
       }
 
-      if (filterDoctorScheduleDto.department) {
+      if (filterDoctorScheduleDto.departmentId) {
         const currentDoctorWhere = (filterOption.doctor ?? {}) as Record<
           string,
           unknown
@@ -46,7 +46,7 @@ export class DoctorScheduleService {
           ...currentDoctorWhere,
           employee: {
             ...currentEmployeeWhere,
-            department: filterDoctorScheduleDto.department,
+            departmentId: filterDoctorScheduleDto.departmentId,
           },
         };
       }

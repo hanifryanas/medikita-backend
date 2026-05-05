@@ -86,14 +86,15 @@ export class PatientSeeder implements Seeder {
       }),
     );
 
-    const createdPatients = await Promise.all(
-      createPatients.map(
-        async (patient) =>
-          await this.patientRepository.save(
-            this.patientRepository.create(patient),
-          ),
-      ),
-    );
+    // Sequential to avoid race in PatientSubscriber when seeding the very
+    // first MedicalRecordCounter row.
+    const createdPatients: Patient[] = [];
+    for (const patient of createPatients) {
+      const saved = await this.patientRepository.save(
+        this.patientRepository.create(patient),
+      );
+      createdPatients.push(saved);
+    }
 
     await Promise.all(
       createdPatientUsers.map((user, index) =>

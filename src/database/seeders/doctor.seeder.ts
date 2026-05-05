@@ -4,13 +4,36 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Seeder } from 'nestjs-seeder';
 import { Repository } from 'typeorm';
 import { Day } from '../../common/enums/day.enum';
+import { Department } from '../../modules/department/entities/department.entity';
 import { DoctorSchedule } from '../../modules/doctor/entities/doctor-schedule.entity';
 import { Doctor } from '../../modules/doctor/entities/doctor.entity';
 import { Employee } from '../../modules/employee/entities/employee.entity';
-import { EmployeeDepartment } from '../../modules/employee/enums/employee-department.enum';
 import { User } from '../../modules/user/entities/user.entity';
 import { UserGenderType } from '../../modules/user/enums/user-gender.enum';
 import { UserRole } from '../../modules/user/enums/user-role.enum';
+
+/** Maps a department typeCode to the Indonesian specialist title (Sp.XX)
+ *  and plain-language job title for doctors assigned to that department. */
+const DOCTOR_TITLE_BY_DEPARTMENT: Record<
+  string,
+  { title: string; jobTitle: string }
+> = {
+  cardiology: { title: 'Sp.JP', jobTitle: 'Cardiologist' },
+  dermatology: { title: 'Sp.KK', jobTitle: 'Dermatologist' },
+  pediatrics: { title: 'Sp.A', jobTitle: 'Pediatrician' },
+  neurology: { title: 'Sp.S', jobTitle: 'Neurologist' },
+  orthopedics: { title: 'Sp.OT', jobTitle: 'Orthopedic Surgeon' },
+  obgyn: { title: 'Sp.OG', jobTitle: 'Obstetrician-Gynecologist' },
+  oncology: { title: 'Sp.Onk', jobTitle: 'Oncologist' },
+  otolaryngology: { title: 'Sp.THT-KL', jobTitle: 'ENT Specialist' },
+  ophthalmology: { title: 'Sp.M', jobTitle: 'Ophthalmologist' },
+  urology: { title: 'Sp.U', jobTitle: 'Urologist' },
+  internist: { title: 'Sp.PD', jobTitle: 'Internist' },
+  psychiatry: { title: 'Sp.KJ', jobTitle: 'Psychiatrist' },
+  physiatry: { title: 'Sp.KFR', jobTitle: 'Physiatrist' },
+  pulmonology: { title: 'Sp.P', jobTitle: 'Pulmonologist' },
+  endocrinology: { title: 'Sp.PD-KEMD', jobTitle: 'Endocrinologist' },
+};
 
 @Injectable()
 export class DoctorSeeder implements Seeder {
@@ -45,17 +68,6 @@ export class DoctorSeeder implements Seeder {
       user.userName,
       {
         startDate: faker.date.past({ years: 5 }),
-        department: faker.helpers.arrayElement(
-          Object.values(EmployeeDepartment).filter(
-            (dept) =>
-              ![
-                EmployeeDepartment.BackOffice,
-                EmployeeDepartment.FrontOffice,
-                EmployeeDepartment.Pharmacy,
-                EmployeeDepartment.Radiology,
-              ].includes(dept),
-          ),
-        ),
       },
     ]),
   );
@@ -92,12 +104,19 @@ export class DoctorSeeder implements Seeder {
     private readonly doctorRepository: Repository<Doctor>,
     @InjectRepository(DoctorSchedule)
     private readonly doctorScheduleRepository: Repository<DoctorSchedule>,
+    @InjectRepository(Department)
+    private readonly departmentRepository: Repository<Department>,
   ) {}
 
   async seed() {
     const existingDoctorCount = await this.doctorRepository.count();
     const hasExistingDoctors = existingDoctorCount > 0;
     if (hasExistingDoctors) return;
+
+    const doctorDepartments = await this.departmentRepository.findBy({
+      isClinic: true,
+      isActive: true,
+    });
 
     const createdDoctorUsers = await Promise.all(
       this.generatedDoctorUsers.map(
@@ -108,9 +127,11 @@ export class DoctorSeeder implements Seeder {
     const createdEmployees = await Promise.all(
       createdDoctorUsers.map(async (user) => {
         const employeeData = this.generatedDoctorEmployeeMap.get(user.userName);
+        const department = faker.helpers.arrayElement(doctorDepartments);
         const employee = this.employeeRepository.create({
           ...employeeData,
           user,
+          departmentId: department.departmentId,
         });
         return await this.employeeRepository.save(employee);
       }),
@@ -118,8 +139,16 @@ export class DoctorSeeder implements Seeder {
 
     const createdDoctors = await Promise.all(
       createdEmployees.map(async (employee) => {
+        const department = doctorDepartments.find(
+          (dept) => dept.departmentId === employee.departmentId,
+        );
+        const titles = department
+          ? DOCTOR_TITLE_BY_DEPARTMENT[department.typeCode]
+          : undefined;
         const doctor = this.doctorRepository.create({
           employee,
+          title: titles?.title,
+          jobTitle: titles?.jobTitle,
         });
         return await this.doctorRepository.save(doctor);
       }),

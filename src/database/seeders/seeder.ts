@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { seeder } from 'nestjs-seeder';
 import { join } from 'path';
 import { databaseConfig } from '../../config/database.config';
+import { Department } from '../../modules/department/entities/department.entity';
 import { DoctorSchedule } from '../../modules/doctor/entities/doctor-schedule.entity';
 import { Doctor } from '../../modules/doctor/entities/doctor.entity';
 import { Employee } from '../../modules/employee/entities/employee.entity';
@@ -12,6 +13,7 @@ import { PatientInsurance } from '../../modules/patient/entities/patient-insuran
 import { Patient } from '../../modules/patient/entities/patient.entity';
 import { UserPatient } from '../../modules/user/entities/user-patient.entity';
 import { User } from '../../modules/user/entities/user.entity';
+import { DepartmentSeeder } from './department.seeder';
 import { DoctorSeeder } from './doctor.seeder';
 import { EmployeeAdminSeeder } from './employee-admin.seeder';
 import { NurseSeeder } from './nurse.seeder';
@@ -37,6 +39,9 @@ seeder({
         entities: [
           join(__dirname, '../../modules/**/entities/*.entity{.ts,.js}'),
         ],
+        subscribers: [
+          join(__dirname, '../../modules/**/subscribers/*.subscriber{.ts,.js}'),
+        ],
         migrationsRun: false,
         synchronize: false,
       }),
@@ -44,6 +49,7 @@ seeder({
     TypeOrmModule.forFeature([
       User,
       Employee,
+      Department,
       Patient,
       PatientInsurance,
       UserPatient,
@@ -55,6 +61,7 @@ seeder({
   ],
 }).run([
   UserSuperAdminSeeder,
+  DepartmentSeeder,
   EmployeeAdminSeeder,
   PatientSeeder,
   DoctorSeeder,

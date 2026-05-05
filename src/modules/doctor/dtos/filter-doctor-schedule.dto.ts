@@ -1,12 +1,15 @@
 import { PartialType } from '@nestjs/swagger';
-import { IsEnum, IsString } from 'class-validator';
-import { EmployeeDepartment } from '../../employee/enums/employee-department.enum';
+import { Type } from 'class-transformer';
+import { IsInt, IsOptional, IsString } from 'class-validator';
 import { DoctorSchedule } from '../entities/doctor-schedule.entity';
 
 export class FilterDoctorScheduleDto extends PartialType(DoctorSchedule) {
+  @IsOptional()
   @IsString()
   doctorId?: string;
 
-  @IsEnum(EmployeeDepartment)
-  department?: EmployeeDepartment;
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  departmentId?: number;
 }

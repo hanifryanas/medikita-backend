@@ -1,9 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsDate, IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsDate, IsEnum, IsInt, IsNotEmpty, IsString } from 'class-validator';
 import { formatDate } from 'date-fns';
 import { UserRole } from '../../user/enums/user-role.enum';
-import { EmployeeDepartment } from '../enums/employee-department.enum';
 
 export class CreateEmployeeDto {
   @ApiProperty()
@@ -26,8 +25,10 @@ export class CreateEmployeeDto {
   role: UserRole;
 
   @ApiProperty({
-    example: EmployeeDepartment.BackOffice,
+    example: 1,
+    description: 'ID of an existing Department',
   })
-  @IsEnum(EmployeeDepartment)
-  department: EmployeeDepartment;
+  @IsInt()
+  @Type(() => Number)
+  departmentId: number;
 }

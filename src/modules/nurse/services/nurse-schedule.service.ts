@@ -15,7 +15,7 @@ export class NurseScheduleService {
   async findBy(
     filterNurseScheduleDto: FilterNurseScheduleDto,
   ): Promise<NurseSchedule[]> {
-    if (filterNurseScheduleDto.nurseId || filterNurseScheduleDto.department) {
+    if (filterNurseScheduleDto.nurseId || filterNurseScheduleDto.departmentId) {
       const filterOption: FindOptionsWhere<NurseSchedule> = {};
 
       if (filterNurseScheduleDto.nurseId) {
@@ -29,7 +29,7 @@ export class NurseScheduleService {
         };
       }
 
-      if (filterNurseScheduleDto.department) {
+      if (filterNurseScheduleDto.departmentId) {
         const currentNurseWhere = (filterOption.nurse ?? {}) as Record<
           string,
           unknown
@@ -40,7 +40,7 @@ export class NurseScheduleService {
           ...currentNurseWhere,
           employee: {
             ...currentEmployeeWhere,
-            department: filterNurseScheduleDto.department,
+            departmentId: filterNurseScheduleDto.departmentId,
           },
         };
       }

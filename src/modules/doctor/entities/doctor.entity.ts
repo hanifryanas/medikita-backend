@@ -24,8 +24,14 @@ export class Doctor extends BaseEntity {
   @JoinColumn({ name: 'employeeId' })
   employee: Employee;
 
+  /** Indonesian specialist title abbreviation (e.g. 'Sp.JP', 'Sp.OG', 'Sp.A').
+   *  Appended to the doctor's name. */
   @Column({ nullable: true, length: 50 })
   title?: string;
+
+  /** Plain-language job title (e.g. 'Cardiologist', 'Pediatrician'). */
+  @Column({ nullable: true, length: 100 })
+  jobTitle?: string;
 
   @OneToMany(() => DoctorSchedule, (schedule) => schedule.doctor)
   schedules?: DoctorSchedule[];

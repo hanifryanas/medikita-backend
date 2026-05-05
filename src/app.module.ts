@@ -2,17 +2,18 @@ import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR, Reflector } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { join } from 'path';
 import { JwtAuthGuard } from './common/guards/jwt.guard';
 import { RequiredRoleGuard } from './common/guards/required-role.guard';
-import { PatientModule } from './modules/patient/patient.module';
-import { UserModule } from './modules/user/user.module';
-import { join } from 'path';
+import { databaseConfig, tokenConfig } from './config';
+import { AppointmentModule } from './modules/appointment/appointment.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { DepartmentModule } from './modules/department/department.module';
 import { DoctorModule } from './modules/doctor/doctor.module';
 import { EmployeeModule } from './modules/employee/employee.module';
 import { NurseModule } from './modules/nurse/nurse.module';
-import { AppointmentModule } from './modules/appointment/appointment.module';
-import { databaseConfig, tokenConfig } from './config';
+import { PatientModule } from './modules/patient/patient.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   providers: [
@@ -56,6 +57,7 @@ import { databaseConfig, tokenConfig } from './config';
     AuthModule,
     UserModule,
     PatientModule,
+    DepartmentModule,
     EmployeeModule,
     DoctorModule,
     NurseModule,

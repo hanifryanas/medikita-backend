@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Seeder } from 'nestjs-seeder';
 import { Repository } from 'typeorm';
 import { Day } from '../../common/enums/day.enum';
+import { Department } from '../../modules/department/entities/department.entity';
 import { Employee } from '../../modules/employee/entities/employee.entity';
-import { EmployeeDepartment } from '../../modules/employee/enums/employee-department.enum';
 import { NurseSchedule } from '../../modules/nurse/entities/nurse-schedule.entity';
 import { Nurse } from '../../modules/nurse/entities/nurse.entity';
 import { User } from '../../modules/user/entities/user.entity';
@@ -43,16 +43,6 @@ export class NurseSeeder implements Seeder {
       user.userName,
       {
         startDate: faker.date.past({ years: 5 }),
-        department: faker.helpers.arrayElement(
-          Object.values(EmployeeDepartment).filter(
-            (dept) =>
-              ![
-                EmployeeDepartment.BackOffice,
-                EmployeeDepartment.FrontOffice,
-                EmployeeDepartment.Pharmacy,
-              ].includes(dept),
-          ),
-        ),
       },
     ]),
   );
@@ -89,12 +79,19 @@ export class NurseSeeder implements Seeder {
     private readonly nurseRepository: Repository<Nurse>,
     @InjectRepository(NurseSchedule)
     private readonly nurseScheduleRepository: Repository<NurseSchedule>,
+    @InjectRepository(Department)
+    private readonly departmentRepository: Repository<Department>,
   ) {}
 
   async seed() {
     const existingNurseCount = await this.nurseRepository.count();
     const hasExistingNurses = existingNurseCount > 0;
     if (hasExistingNurses) return;
+
+    const nurseDepartments = await this.departmentRepository.findBy({
+      isClinic: true,
+      isActive: true,
+    });
 
     const createdNurseUsers = await Promise.all(
       this.generatedNurseUsers.map(
@@ -105,9 +102,11 @@ export class NurseSeeder implements Seeder {
     const createdEmployees = await Promise.all(
       createdNurseUsers.map(async (user) => {
         const employeeData = this.generatedNurseEmployeeMap.get(user.userName);
+        const department = faker.helpers.arrayElement(nurseDepartments);
         const employee = this.employeeRepository.create({
           ...employeeData,
           user,
+          departmentId: department.departmentId,
         });
         return await this.employeeRepository.save(employee);
       }),

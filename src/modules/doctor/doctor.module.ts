@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DepartmentModule } from '../department/department.module';
 import { Employee } from '../employee/entities/employee.entity';
 import { EmployeeService } from '../employee/services/employee.service';
 import { User } from '../user/entities/user.entity';
@@ -12,7 +13,10 @@ import { DoctorScheduleService } from './services/doctor-schedule.service';
 import { DoctorService } from './services/doctor.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Doctor, DoctorSchedule, Employee, User])],
+  imports: [
+    TypeOrmModule.forFeature([Doctor, DoctorSchedule, Employee, User]),
+    DepartmentModule,
+  ],
   providers: [
     DoctorService,
     DoctorScheduleService,
