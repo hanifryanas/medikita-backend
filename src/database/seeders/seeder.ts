@@ -16,6 +16,7 @@ import { User } from '../../modules/user/entities/user.entity';
 import { DepartmentSeeder } from './department.seeder';
 import { DoctorSeeder } from './doctor.seeder';
 import { EmployeeAdminSeeder } from './employee-admin.seeder';
+import { EmployeeStaffSeeder } from './employee-staff.seeder';
 import { NurseSeeder } from './nurse.seeder';
 import { PatientSeeder } from './patient-seeder';
 import { UserSuperAdminSeeder } from './user-super-admin.seeder';
@@ -63,6 +64,7 @@ seeder({
   UserSuperAdminSeeder,
   DepartmentSeeder,
   EmployeeAdminSeeder,
+  EmployeeStaffSeeder,
   PatientSeeder,
   DoctorSeeder,
   NurseSeeder,

@@ -9,8 +9,8 @@ import { DoctorSchedule } from '../../modules/doctor/entities/doctor-schedule.en
 import { Doctor } from '../../modules/doctor/entities/doctor.entity';
 import { Employee } from '../../modules/employee/entities/employee.entity';
 import { User } from '../../modules/user/entities/user.entity';
-import { UserGenderType } from '../../modules/user/enums/user-gender.enum';
 import { UserRole } from '../../modules/user/enums/user-role.enum';
+import { generateUser } from './functions';
 
 /** Maps a department typeCode to the Indonesian specialist title (Sp.XX)
  *  and plain-language job title for doctors assigned to that department. */
@@ -39,28 +39,11 @@ const DOCTOR_TITLE_BY_DEPARTMENT: Record<
 export class DoctorSeeder implements Seeder {
   private generatedDoctorUsers: Partial<User>[] = Array.from(
     { length: 50 },
-    () => {
-      const gender = faker.person.sexType() as UserGenderType;
-      const firstName = faker.person.firstName(gender);
-      const lastName = faker.person.lastName(gender);
-      const usernameBase = `${firstName}${lastName}`.toLowerCase().slice(0, 15);
-      return {
-        identityNumber: faker.string.numeric(16),
-        email: `${usernameBase}@mail.com`,
-        userName: usernameBase,
-        password: usernameBase,
-        firstName: firstName,
-        lastName: lastName,
-        gender,
-        role: faker.helpers.arrayElement([UserRole.Staff, UserRole.Admin]),
-        phoneNumber: `628${faker.string.numeric(10)}`,
-        dateOfBirth: faker.date.birthdate({
-          min: 1970,
-          max: 2000,
-          mode: 'year',
-        }),
-      };
-    },
+    () =>
+      generateUser({
+        role: [UserRole.Staff, UserRole.Admin],
+        includeAddress: true,
+      }),
   );
 
   private generatedDoctorEmployeeMap: Map<string, Partial<Employee>> = new Map(

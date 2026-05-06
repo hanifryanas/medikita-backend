@@ -8,35 +8,14 @@ import { Patient } from '../../modules/patient/entities/patient.entity';
 import { InsuranceProviderType } from '../../modules/patient/enums/insurance-provider.enum';
 import { UserPatient } from '../../modules/user/entities/user-patient.entity';
 import { User } from '../../modules/user/entities/user.entity';
-import { UserGenderType } from '../../modules/user/enums/user-gender.enum';
 import { UserRelationship } from '../../modules/user/enums/user-relationship.enum';
+import { generateUser } from './functions';
 
 @Injectable()
 export class PatientSeeder implements Seeder {
   private generatedPatientUsers: Partial<User>[] = Array.from(
     { length: 50 },
-    () => {
-      const gender = faker.person.sexType() as UserGenderType;
-      const firstName = faker.person.firstName(gender);
-      const lastName = faker.person.lastName(gender);
-      const usernameBase = `${firstName}${lastName}`.toLowerCase().slice(0, 15);
-      return {
-        identityNumber: faker.string.numeric(16),
-        email: `${usernameBase}@mail.com`,
-        userName: usernameBase,
-        password: usernameBase,
-        firstName: firstName,
-        lastName: lastName,
-        gender,
-        phoneNumber: `628${faker.string.numeric(10)}`,
-        dateOfBirth: faker.date.birthdate({
-          min: 1970,
-          max: 2000,
-          mode: 'year',
-        }),
-        address: `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.state()}`,
-      };
-    },
+    () => generateUser({ includeAddress: true }),
   );
 
   private generatedPatientInsurances: Partial<PatientInsurance>[] = Array.from(
