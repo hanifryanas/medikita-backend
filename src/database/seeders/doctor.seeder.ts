@@ -2,7 +2,7 @@ import { fakerID_ID as faker } from '@faker-js/faker';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Seeder } from 'nestjs-seeder';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Day } from '../../common/enums/day.enum';
 import { Department } from '../../modules/department/entities/department.entity';
 import { DoctorSchedule } from '../../modules/doctor/entities/doctor-schedule.entity';
@@ -11,6 +11,8 @@ import { Employee } from '../../modules/employee/entities/employee.entity';
 import { User } from '../../modules/user/entities/user.entity';
 import { UserRole } from '../../modules/user/enums/user-role.enum';
 import { generateUser } from './functions';
+
+const DOCTOR_COUNT = 50;
 
 /** Maps a department typeCode to the Indonesian specialist title (Sp.XX)
  *  and plain-language job title for doctors assigned to that department. */
@@ -35,10 +37,20 @@ const DOCTOR_TITLE_BY_DEPARTMENT: Record<
   endocrinology: { title: 'Sp.PD-KEMD', jobTitle: 'Endocrinologist' },
 };
 
+function generateSchedules(): Partial<DoctorSchedule>[] {
+  const count = faker.number.int({ min: 3, max: 6 });
+  const days = faker.helpers.arrayElements(Object.values(Day), count);
+  return days.map((day) => {
+    const startHour = faker.number.int({ min: 8, max: 14 });
+    const endHour = startHour + faker.number.int({ min: 2, max: 4 });
+    return { day, startTime: `${startHour}:00`, endTime: `${endHour}:00` };
+  });
+}
+
 @Injectable()
 export class DoctorSeeder implements Seeder {
   private generatedDoctorUsers: Partial<User>[] = Array.from(
-    { length: 50 },
+    { length: DOCTOR_COUNT },
     () =>
       generateUser({
         role: [UserRole.Staff, UserRole.Admin],
@@ -46,118 +58,65 @@ export class DoctorSeeder implements Seeder {
       }),
   );
 
-  private generatedDoctorEmployeeMap: Map<string, Partial<Employee>> = new Map(
-    this.generatedDoctorUsers.map((user) => [
-      user.userName,
-      {
-        startDate: faker.date.past({ years: 5 }),
-      },
-    ]),
-  );
-
-  private generatedDoctorScheduleMap: Map<string, Partial<DoctorSchedule>[]> =
-    new Map(
-      this.generatedDoctorUsers.map((user) => {
-        const schedules: Partial<DoctorSchedule>[] = [];
-        const numberOfSchedules = faker.number.int({ min: 3, max: 6 });
-        const days = faker.helpers.arrayElements(
-          Object.values(Day),
-          numberOfSchedules,
-        );
-        days.forEach((day) => {
-          const startHour = faker.number.int({ min: 8, max: 14 });
-          const endHour = startHour + faker.number.int({ min: 2, max: 4 });
-          schedules.push({
-            day,
-            startTime: `${startHour}:00`,
-            endTime: `${endHour}:00`,
-          });
-        });
-
-        return [user.userName, schedules];
-      }),
-    );
-
   constructor(
+    private readonly dataSource: DataSource,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(Employee)
-    private readonly employeeRepository: Repository<Employee>,
-    @InjectRepository(Doctor)
-    private readonly doctorRepository: Repository<Doctor>,
-    @InjectRepository(DoctorSchedule)
-    private readonly doctorScheduleRepository: Repository<DoctorSchedule>,
-    @InjectRepository(Department)
-    private readonly departmentRepository: Repository<Department>,
   ) {}
 
   async seed() {
-    const existingDoctorCount = await this.doctorRepository.count();
-    const hasExistingDoctors = existingDoctorCount > 0;
-    if (hasExistingDoctors) return;
+    await this.dataSource.transaction(async (manager) => {
+      const existingCount = await manager.count(Doctor);
+      if (existingCount > 0) return;
 
-    const doctorDepartments = await this.departmentRepository.findBy({
-      isClinic: true,
-      isActive: true,
-    });
-
-    const createdDoctorUsers = await Promise.all(
-      this.generatedDoctorUsers.map(
-        async (user) => await this.userRepository.save(user),
-      ),
-    );
-
-    const createdEmployees = await Promise.all(
-      createdDoctorUsers.map(async (user) => {
-        const employeeData = this.generatedDoctorEmployeeMap.get(user.userName);
-        const department = faker.helpers.arrayElement(doctorDepartments);
-        const employee = this.employeeRepository.create({
-          ...employeeData,
-          user,
-          departmentId: department.departmentId,
-        });
-        return await this.employeeRepository.save(employee);
-      }),
-    );
-
-    const createdDoctors = await Promise.all(
-      createdEmployees.map(async (employee) => {
-        const department = doctorDepartments.find(
-          (dept) => dept.departmentId === employee.departmentId,
-        );
-        const titles = department
-          ? DOCTOR_TITLE_BY_DEPARTMENT[department.typeCode]
-          : undefined;
-        const doctor = this.doctorRepository.create({
-          employee,
-          title: titles?.title,
-          jobTitle: titles?.jobTitle,
-        });
-        return await this.doctorRepository.save(doctor);
-      }),
-    );
-
-    const doctorSchedules: Partial<DoctorSchedule>[] = [];
-    createdDoctors.forEach((doctor) => {
-      const schedules = this.generatedDoctorScheduleMap.get(
-        doctor.employee.user.userName,
-      );
-      schedules?.forEach((schedule) => {
-        doctorSchedules.push({
-          ...schedule,
-          doctor,
-        });
+      const departments = await manager.findBy(Department, {
+        isClinic: true,
+        isActive: true,
       });
-    });
 
-    await Promise.all(
-      doctorSchedules.map(
-        async (schedule) =>
-          await this.doctorScheduleRepository.save(
-            this.doctorScheduleRepository.create(schedule),
-          ),
-      ),
-    );
+      const users = await manager.save(
+        User,
+        this.generatedDoctorUsers.map((u) => manager.create(User, u)),
+      );
+
+      const employees = await manager.save(
+        Employee,
+        users.map((user) => {
+          const department = faker.helpers.arrayElement(departments);
+          return manager.create(Employee, {
+            user,
+            startDate: faker.date.past({ years: 5 }),
+            departmentId: department.departmentId,
+          });
+        }),
+      );
+
+      const doctors = await manager.save(
+        Doctor,
+        employees.map((employee) => {
+          const department = departments.find(
+            (d) => d.departmentId === employee.departmentId,
+          );
+          const titles = department
+            ? DOCTOR_TITLE_BY_DEPARTMENT[department.typeCode]
+            : undefined;
+          return manager.create(Doctor, {
+            employee,
+            title: titles?.title,
+            jobTitle: titles?.jobTitle,
+          });
+        }),
+      );
+
+      const schedules = doctors.flatMap((doctor) =>
+        generateSchedules().map((schedule) =>
+          manager.create(DoctorSchedule, { ...schedule, doctor }),
+        ),
+      );
+      await manager.save(DoctorSchedule, schedules);
+
+      console.log(`Created ${doctors.length} doctors`);
+    });
   }
 
   async drop() {

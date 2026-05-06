@@ -1,8 +1,8 @@
-import { fakerID_ID as faker_ID } from '@faker-js/faker';
+import { fakerID_ID as faker } from '@faker-js/faker';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Seeder } from 'nestjs-seeder';
-import { Repository } from 'typeorm';
+import { DataSource, IsNull, Not, Repository } from 'typeorm';
 import { Department } from '../../modules/department/entities/department.entity';
 import { Employee } from '../../modules/employee/entities/employee.entity';
 import { User } from '../../modules/user/entities/user.entity';
@@ -43,69 +43,63 @@ export class EmployeeStaffSeeder implements Seeder {
   );
 
   constructor(
+    private readonly dataSource: DataSource,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(Employee)
-    private readonly employeeRepository: Repository<Employee>,
-    @InjectRepository(Department)
-    private readonly departmentRepository: Repository<Department>,
   ) {}
 
   async seed() {
-    const existingStaffCount = await this.employeeRepository
-      .createQueryBuilder('employee')
-      .leftJoin('employee.user', 'user')
-      .leftJoin('employee.doctor', 'doctor')
-      .leftJoin('employee.nurse', 'nurse')
-      .where('user.role = :role', { role: UserRole.Staff })
-      .andWhere('doctor.doctorId IS NULL')
-      .andWhere('nurse.nurseId IS NULL')
-      .andWhere('employee.jobTitle IS NOT NULL')
-      .getCount();
-    if (existingStaffCount > 0) return;
+    await this.dataSource.transaction(async (manager) => {
+      const existingStaffCount = await manager.count(Employee, {
+        where: {
+          user: { role: UserRole.Staff },
+          doctor: { doctorId: IsNull() },
+          nurse: { nurseId: IsNull() },
+          jobTitle: Not(IsNull()),
+        },
+        relations: { user: true, doctor: true, nurse: true },
+      });
+      if (existingStaffCount > 0) return;
 
-    const departments = await this.departmentRepository.findBy({
-      isClinic: false,
-      isActive: true,
-    });
-    if (departments.length === 0) return;
+      const departments = await manager.findBy(Department, {
+        isClinic: false,
+        isActive: true,
+      });
+      if (departments.length === 0) return;
 
-    // ER is treated as a complex department, so we intentionally increase its
-    // share in staff distribution (dispatcher, transport, ambulance, etc).
-    const emergencyDepartment = departments.find(
-      (department) => department.typeCode === 'emergency',
-    );
-    const departmentPool = [...departments];
-    if (emergencyDepartment) {
-      departmentPool.push(emergencyDepartment, emergencyDepartment);
-    }
+      const emergencyDepartment = departments.find(
+        (department) => department.typeCode === 'emergency',
+      );
+      const departmentPool = [...departments];
+      if (emergencyDepartment) {
+        departmentPool.push(emergencyDepartment, emergencyDepartment);
+      }
 
-    const createdUsers = await Promise.all(
-      this.generatedStaffUsers.map(async (user) =>
-        this.userRepository.save(this.userRepository.create(user)),
-      ),
-    );
+      const users = await manager.save(
+        User,
+        this.generatedStaffUsers.map((u) => manager.create(User, u)),
+      );
 
-    const createdEmployees = await Promise.all(
-      createdUsers.map(async (user, index) => {
-        const department = departmentPool[index % departmentPool.length];
-        const mappedTitles = JOB_TITLES_BY_DEPARTMENT[department.typeCode];
-        const jobTitle = mappedTitles
-          ? faker_ID.helpers.arrayElement(mappedTitles)
-          : 'Administrative Staff';
+      const employees = await manager.save(
+        Employee,
+        users.map((user, index) => {
+          const department = departmentPool[index % departmentPool.length];
+          const mappedTitles = JOB_TITLES_BY_DEPARTMENT[department.typeCode];
+          const jobTitle = mappedTitles
+            ? faker.helpers.arrayElement(mappedTitles)
+            : 'Administrative Staff';
 
-        return this.employeeRepository.save(
-          this.employeeRepository.create({
+          return manager.create(Employee, {
             user,
-            startDate: faker_ID.date.past({ years: 8 }),
+            startDate: faker.date.past({ years: 8 }),
             departmentId: department.departmentId,
             jobTitle,
-          }),
-        );
-      }),
-    );
+          });
+        }),
+      );
 
-    console.log(`Created ${createdEmployees.length} staff employees`);
+      console.log(`Created ${employees.length} staff employees`);
+    });
   }
 
   async drop() {

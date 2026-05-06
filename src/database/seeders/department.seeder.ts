@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Seeder } from 'nestjs-seeder';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Department } from '../../modules/department/entities/department.entity';
 
 const DEPARTMENT_SEED: Pick<
@@ -206,19 +206,23 @@ const DEPARTMENT_SEED: Pick<
 @Injectable()
 export class DepartmentSeeder implements Seeder {
   constructor(
+    private readonly dataSource: DataSource,
     @InjectRepository(Department)
     private readonly departmentRepository: Repository<Department>,
   ) {}
 
   async seed() {
-    const existingCount = await this.departmentRepository.count();
-    if (existingCount > 0) return;
+    await this.dataSource.transaction(async (manager) => {
+      const existingCount = await manager.count(Department);
+      if (existingCount > 0) return;
 
-    await this.departmentRepository.save(
-      DEPARTMENT_SEED.map((department) =>
-        this.departmentRepository.create(department),
-      ),
-    );
+      await manager.save(
+        Department,
+        DEPARTMENT_SEED.map((dept) => manager.create(Department, dept)),
+      );
+
+      console.log(`Created ${DEPARTMENT_SEED.length} departments`);
+    });
   }
 
   async drop() {

@@ -2,7 +2,7 @@ import { fakerID_ID as faker } from '@faker-js/faker';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Seeder } from 'nestjs-seeder';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Department } from '../../modules/department/entities/department.entity';
 import { Employee } from '../../modules/employee/entities/employee.entity';
 import { User } from '../../modules/user/entities/user.entity';
@@ -25,35 +25,36 @@ export class UserSuperAdminSeeder implements Seeder {
   };
 
   constructor(
+    private readonly dataSource: DataSource,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(Employee)
-    private readonly employeeRepository: Repository<Employee>,
-    @InjectRepository(Department)
-    private readonly departmentRepository: Repository<Department>,
   ) {}
 
   async seed() {
-    const existingSuperAdminUser = await this.userRepository.findOne({
-      where: { userName: this.superAdminUser.userName },
+    await this.dataSource.transaction(async (manager) => {
+      const existing = await manager.findOne(User, {
+        where: { userName: this.superAdminUser.userName },
+      });
+      if (existing) return;
+
+      const backOffice = await manager.findOneOrFail(Department, {
+        where: { typeCode: 'backoffice' },
+      });
+
+      const user = await manager.save(
+        User,
+        manager.create(User, this.superAdminUser),
+      );
+
+      await manager.save(
+        Employee,
+        manager.create(Employee, {
+          user,
+          startDate: new Date(),
+          departmentId: backOffice.departmentId,
+        }),
+      );
     });
-    if (existingSuperAdminUser) return;
-
-    const backOfficeDepartment = await this.departmentRepository.findOneOrFail({
-      where: { typeCode: 'backoffice' },
-    });
-
-    const user = this.userRepository.create(this.superAdminUser);
-    const createdUser = await this.userRepository.save(user);
-
-    const superAdminEmployee: Partial<Employee> = {
-      user: createdUser,
-      startDate: new Date(),
-      departmentId: backOfficeDepartment.departmentId,
-    };
-
-    const employee = this.employeeRepository.create(superAdminEmployee);
-    await this.employeeRepository.save(employee);
   }
 
   async drop() {

@@ -2,7 +2,7 @@ import { fakerID_ID as faker } from '@faker-js/faker';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Seeder } from 'nestjs-seeder';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Department } from '../../modules/department/entities/department.entity';
 import { Employee } from '../../modules/employee/entities/employee.entity';
 import { User } from '../../modules/user/entities/user.entity';
@@ -12,63 +12,61 @@ import { UserRole } from '../../modules/user/enums/user-role.enum';
 @Injectable()
 export class EmployeeAdminSeeder implements Seeder {
   constructor(
+    private readonly dataSource: DataSource,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(Employee)
-    private readonly employeeRepository: Repository<Employee>,
-    @InjectRepository(Department)
-    private readonly departmentRepository: Repository<Department>,
   ) {}
 
   async seed() {
-    const existingAdminUsers = await this.userRepository.findOne({
-      where: { role: UserRole.Admin },
-    });
-    if (existingAdminUsers) return;
+    await this.dataSource.transaction(async (manager) => {
+      const existingAdmin = await manager.findOne(User, {
+        where: { role: UserRole.Admin },
+      });
+      if (existingAdmin) return;
 
-    const departments = await this.departmentRepository.find();
+      const departments = await manager.find(Department);
+      if (departments.length === 0) return;
 
-    const employeeUsers: Partial<User>[] = departments.map((department) => ({
-      identityNumber: faker.string.numeric(16),
-      email: `${department.typeCode}admin@mail.com`,
-      userName: `${department.typeCode}admin`,
-      password: `${department.typeCode}admin`,
-      firstName:
-        department.typeCode.charAt(0).toUpperCase() +
-        department.typeCode.slice(1),
-      lastName: 'Admin',
-      gender: faker.helpers.arrayElement(Object.values(UserGenderType)),
-      role: UserRole.Admin,
-      phoneNumber: `628${faker.string.numeric(10)}`,
-      dateOfBirth: faker.date.birthdate({ min: 1970, max: 2000, mode: 'year' }),
-    }));
-
-    const createdUsers = await Promise.all(
-      employeeUsers.map(
-        async (user) =>
-          await this.userRepository.save(this.userRepository.create(user)),
-      ),
-    );
-
-    const employeeAdmins: Partial<Employee>[] = createdUsers.map((user) => {
-      const department = departments.find(
-        (dept) => `${dept.typeCode}admin` === user.userName,
+      const users = await manager.save(
+        User,
+        departments.map((department) =>
+          manager.create(User, {
+            identityNumber: faker.string.numeric(16),
+            email: `${department.typeCode}admin@mail.com`,
+            userName: `${department.typeCode}admin`,
+            password: `${department.typeCode}admin`,
+            firstName:
+              department.typeCode.charAt(0).toUpperCase() +
+              department.typeCode.slice(1),
+            lastName: 'Admin',
+            gender: faker.helpers.arrayElement(Object.values(UserGenderType)),
+            role: UserRole.Admin,
+            phoneNumber: `628${faker.string.numeric(10)}`,
+            dateOfBirth: faker.date.birthdate({
+              min: 1970,
+              max: 2000,
+              mode: 'year',
+            }),
+          }),
+        ),
       );
-      return {
-        user,
-        startDate: new Date(),
-        departmentId: department.departmentId,
-      };
-    });
 
-    await Promise.all(
-      employeeAdmins.map(
-        async (employee) =>
-          await this.employeeRepository.save(
-            this.employeeRepository.create(employee),
-          ),
-      ),
-    );
+      await manager.save(
+        Employee,
+        users.map((user) => {
+          const department = departments.find(
+            (dept) => `${dept.typeCode}admin` === user.userName,
+          );
+          return manager.create(Employee, {
+            user,
+            startDate: new Date(),
+            departmentId: department.departmentId,
+          });
+        }),
+      );
+
+      console.log(`Created ${users.length} admin employees`);
+    });
   }
 
   async drop() {
