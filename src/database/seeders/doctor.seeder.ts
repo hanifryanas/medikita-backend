@@ -53,7 +53,7 @@ export class DoctorSeeder implements Seeder {
     { length: DOCTOR_COUNT },
     () =>
       generateUser({
-        role: [UserRole.Staff, UserRole.Admin],
+        role: UserRole.CareTeam,
         includeAddress: true,
       }),
   );

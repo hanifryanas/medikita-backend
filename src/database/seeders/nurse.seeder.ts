@@ -30,7 +30,7 @@ export class NurseSeeder implements Seeder {
     { length: NURSE_COUNT },
     () =>
       generateUser({
-        role: [UserRole.Staff, UserRole.Admin],
+        role: UserRole.CareTeam,
         includeAddress: true,
       }),
   );

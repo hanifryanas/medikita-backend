@@ -34,7 +34,7 @@ export class DoctorScheduleController {
     return this.doctorScheduleService.findBy(filterDoctorScheduleDto);
   }
 
-  @RequiredRole(UserRole.Admin)
+  @RequiredRole(UserRole.CareTeam)
   @Put()
   async update(
     @Body() upsertDoctorScheduleDto: UpsertDoctorScheduleDto,
@@ -42,7 +42,7 @@ export class DoctorScheduleController {
     return await this.doctorScheduleService.upsert(upsertDoctorScheduleDto);
   }
 
-  @RequiredRole(UserRole.Staff)
+  @RequiredRole(UserRole.CareTeam)
   @Put('me')
   async updateMe(
     @CurrentUserId() userId: string,

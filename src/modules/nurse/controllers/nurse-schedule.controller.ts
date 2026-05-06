@@ -34,7 +34,7 @@ export class NurseScheduleController {
     return this.nurseScheduleService.findBy(filterNurseScheduleDto);
   }
 
-  @RequiredRole(UserRole.Admin)
+  @RequiredRole(UserRole.CareTeam)
   @Put()
   async update(
     @Body() upsertNurseScheduleDto: UpsertNurseScheduleDto,
@@ -42,7 +42,7 @@ export class NurseScheduleController {
     return await this.nurseScheduleService.upsert(upsertNurseScheduleDto);
   }
 
-  @RequiredRole(UserRole.Staff)
+  @RequiredRole(UserRole.CareTeam)
   @Put('me')
   async updateMe(
     @CurrentUserId() userId: string,
