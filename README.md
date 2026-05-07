@@ -4,13 +4,13 @@ This backend API powers the Medikita application, a modular healthcare managemen
 
 **Features:**
 
-- User authentication & authorization (JWT, role-based access)
-- Employee management (doctors, nurses, admin staff)
+- User authentication & authorization (JWT, role-based access) with roles: `user`, `staff`, `careteam`, `admin`, `superadmin`
+- Employee management (doctors, nurses, admin staff) with free-form `jobTitle` and department assignment
 - Patient registration & management
   - **Auto-generated Medical Record Number (MRN)** in the format `{YYYYMM}{NNNNNN}` (e.g. `202605000001`), with the 6-digit sequence resetting every month
   - Multi-patient-per-user support with relationship type (`Self`, `Spouse`, `Child`, `Parent`, `Sibling`, `Other`) and per-user ordinal ordering
 - Appointment scheduling
-- Department and role assignment
+- Department management as a first-class entity with `isClinical`, `isClinic`, and `isFeatured` flags (operational units, clinical support units, and outpatient clinics)
 - Group-based response serialization (`user-full`, `patient-for-user`) for context-aware payloads
 - Database seeding and migrations for initial data
 
@@ -81,6 +81,7 @@ npm run start:dev
 
 - A **User** can be linked to **many Patients** through the `UserPatient` join table (e.g. a parent managing their own record plus their children's). Each link carries a `relationship` (`Self`, `Spouse`, `Child`, `Parent`, `Sibling`, `Other`) and an `ordinal` for per-user display ordering.
 - A **User** may also be an **Employee** (one-to-one), and an **Employee** is further specialized as either a **Doctor** or a **Nurse**.
+- An **Employee** belongs to a **Department** (many-to-one). Departments are categorized via `isClinical` (clinical vs. operational) and `isClinic` (offers an outpatient clinic / poli), enabling flexible filtering for scheduling and staffing.
 
 This structure ensures:
 
@@ -94,7 +95,7 @@ This structure ensures:
 ```
 User ──< UserPatient >── Patient
  │
- └── Employee (1:1)
+ └── Employee (1:1) ── Department (n:1)
       ├── Doctor
       └── Nurse
 ```
@@ -116,7 +117,7 @@ All operations for patients, employees, doctors, and nurses are ultimately tied 
    Doctors, nurses, and patients interact through appointment endpoints to create, update, and manage schedules.
 
 5. **Department & Role Assignment:**  
-   Employees are assigned to departments and roles, which control their access and capabilities within the system.
+   Employees are assigned to a `Department` (managed entity, not an enum) and given a `jobTitle`. Users carry one of the system roles (`user`, `staff`, `careteam`, `admin`, `superadmin`) which control their access and capabilities throughout the API.
 
 6. **Database Seeding & Migrations:**  
    Initial data (super admin, admin, sample employees, patients) is seeded for first-time setup. Migrations keep the database schema up to date.
