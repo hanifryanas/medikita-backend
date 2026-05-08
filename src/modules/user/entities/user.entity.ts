@@ -93,7 +93,6 @@ export class User extends BaseEntity {
   address?: string;
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.User })
-  @Exclude({ toPlainOnly: true })
   @Expose({ groups: ['user-full'], toPlainOnly: true })
   role: UserRole;
 
