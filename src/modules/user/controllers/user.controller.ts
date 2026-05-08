@@ -21,7 +21,7 @@ import { UserService } from '../services/user.service';
 @Controller('users')
 @ApiTags('User')
 @ApiBearerAuth()
-@RequiredRole(UserRole.Staff)
+@RequiredRole(UserRole.CareTeam)
 @SerializeOptions({ groups: ['user-full'] })
 export class UserController {
   constructor(private readonly userService: UserService) {}

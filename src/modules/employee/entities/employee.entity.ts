@@ -38,6 +38,9 @@ export class Employee extends BaseEntity {
   @OneToOne(() => Doctor, (doctor) => doctor.employee)
   doctor?: Doctor;
 
+  @Column({ type: 'varchar', nullable: true })
+  photoUrl?: string;
+
   @Column({ type: 'varchar', length: 100, nullable: true })
   jobTitle?: string;
 

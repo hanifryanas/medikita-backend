@@ -1,6 +1,13 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsDate, IsEnum, IsInt, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsDate,
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { formatDate } from 'date-fns';
 import { UserRole } from '../../user/enums/user-role.enum';
 
@@ -31,4 +38,11 @@ export class CreateEmployeeDto {
   @IsInt()
   @Type(() => Number)
   departmentId: number;
+
+  @ApiPropertyOptional({
+    description: 'Photo URL',
+  })
+  @IsString()
+  @IsOptional()
+  photoUrl?: string;
 }

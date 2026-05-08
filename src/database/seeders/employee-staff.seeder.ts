@@ -89,11 +89,16 @@ export class EmployeeStaffSeeder implements Seeder {
             ? faker.helpers.arrayElement(mappedTitles)
             : 'Administrative Staff';
 
+          const genderPath = user.gender === 'male' ? 'men' : 'women';
+          const photoIndex = index % 100;
           return manager.create(Employee, {
             user,
             startDate: faker.date.past({ years: 8 }),
             departmentId: department.departmentId,
             jobTitle,
+            photoUrl: faker.datatype.boolean({ probability: 0.65 })
+              ? `https://randomuser.me/api/portraits/${genderPath}/${photoIndex}.jpg`
+              : undefined,
           });
         }),
       );

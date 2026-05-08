@@ -105,4 +105,11 @@ export class CreateUserDto implements Partial<User> {
   @IsString()
   @IsOptional()
   address?: string;
+
+  @ApiPropertyOptional({
+    description: 'Photo URL',
+  })
+  @IsString()
+  @IsOptional()
+  photoUrl?: string;
 }

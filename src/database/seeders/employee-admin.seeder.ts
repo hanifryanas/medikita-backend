@@ -61,6 +61,9 @@ export class EmployeeAdminSeeder implements Seeder {
             user,
             startDate: new Date(),
             departmentId: department.departmentId,
+            photoUrl: faker.datatype.boolean({ probability: 0.65 })
+              ? faker.image.avatar()
+              : undefined,
           });
         }),
       );

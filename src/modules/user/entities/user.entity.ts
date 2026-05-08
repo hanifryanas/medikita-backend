@@ -61,6 +61,9 @@ export class User extends BaseEntity {
   @Column({ length: 25 })
   lastName: string;
 
+  @Column({ nullable: true })
+  photoUrl?: string;
+
   @Column({ type: 'enum', enum: UserGenderType })
   gender: UserGenderType;
 

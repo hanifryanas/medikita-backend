@@ -58,12 +58,17 @@ export class NurseSeeder implements Seeder {
 
       const employees = await manager.save(
         Employee,
-        users.map((user) => {
+        users.map((user, index) => {
           const department = faker.helpers.arrayElement(departments);
+          const genderPath = user.gender === 'male' ? 'men' : 'women';
+          const photoIndex = index % 100;
           return manager.create(Employee, {
             user,
             startDate: faker.date.past({ years: 5 }),
             departmentId: department.departmentId,
+            photoUrl: faker.datatype.boolean({ probability: 0.65 })
+              ? `https://randomuser.me/api/portraits/${genderPath}/${photoIndex}.jpg`
+              : undefined,
           });
         }),
       );
