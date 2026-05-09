@@ -14,6 +14,10 @@ export class Department extends BaseEntity {
   @Column({ length: 100 })
   displayName: string;
 
+  /** Lucide icon name, e.g. 'heart-pulse', 'baby'. */
+  @Column({ length: 50, nullable: true })
+  iconName?: string;
+
   @Column({ type: 'text', nullable: true })
   description?: string;
 

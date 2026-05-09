@@ -9,6 +9,7 @@ const DEPARTMENT_SEED: Partial<Department>[] = [
   {
     typeCode: 'frontoffice',
     displayName: 'Front Office',
+    iconName: 'concierge-bell',
     isClinical: false,
     isClinic: false,
     isActive: true,
@@ -16,6 +17,7 @@ const DEPARTMENT_SEED: Partial<Department>[] = [
   {
     typeCode: 'backoffice',
     displayName: 'Back Office',
+    iconName: 'building-2',
     isClinical: false,
     isClinic: false,
     isActive: true,
@@ -23,6 +25,7 @@ const DEPARTMENT_SEED: Partial<Department>[] = [
   {
     typeCode: 'services',
     displayName: 'Support Services',
+    iconName: 'wrench',
     isClinical: false,
     isClinic: false,
     isActive: true,
@@ -31,6 +34,7 @@ const DEPARTMENT_SEED: Partial<Department>[] = [
   {
     typeCode: 'laboratory',
     displayName: 'Laboratory',
+    iconName: 'flask-conical',
     isClinical: true,
     isClinic: false,
     isActive: true,
@@ -38,6 +42,7 @@ const DEPARTMENT_SEED: Partial<Department>[] = [
   {
     typeCode: 'pharmacy',
     displayName: 'Pharmacy',
+    iconName: 'pill',
     isClinical: true,
     isClinic: false,
     isActive: true,
@@ -45,6 +50,7 @@ const DEPARTMENT_SEED: Partial<Department>[] = [
   {
     typeCode: 'radiology',
     displayName: 'Radiology',
+    iconName: 'scan',
     isClinical: true,
     isClinic: false,
     isActive: true,
@@ -52,6 +58,7 @@ const DEPARTMENT_SEED: Partial<Department>[] = [
   {
     typeCode: 'emergency',
     displayName: 'ER',
+    iconName: 'siren',
     isClinical: true,
     isClinic: false,
     isActive: true,
@@ -59,6 +66,7 @@ const DEPARTMENT_SEED: Partial<Department>[] = [
   {
     typeCode: 'generalsurgery',
     displayName: 'Operating Theatre',
+    iconName: 'scissors',
     isClinical: true,
     isClinic: false,
     isActive: true,
@@ -68,6 +76,7 @@ const DEPARTMENT_SEED: Partial<Department>[] = [
   {
     typeCode: 'cardiology',
     displayName: 'Heart Center',
+    iconName: 'heart-pulse',
     description:
       'Expert diagnosis and treatment for heart and cardiovascular conditions.',
     featuredOrdinal: 2,
@@ -78,6 +87,7 @@ const DEPARTMENT_SEED: Partial<Department>[] = [
   {
     typeCode: 'dermatology',
     displayName: 'Skin & Aesthetic',
+    iconName: 'sparkles',
     description:
       'Specialized care for skin conditions, cosmetic treatments, and aesthetic procedures.',
     featuredOrdinal: 3,
@@ -88,6 +98,7 @@ const DEPARTMENT_SEED: Partial<Department>[] = [
   {
     typeCode: 'pediatrics',
     displayName: 'Children Care',
+    iconName: 'baby',
     description:
       'Dedicated medical care for infants, children, and adolescents.',
     featuredOrdinal: 4,
@@ -98,6 +109,7 @@ const DEPARTMENT_SEED: Partial<Department>[] = [
   {
     typeCode: 'neurology',
     displayName: 'Neuroscience Center',
+    iconName: 'brain',
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -105,6 +117,7 @@ const DEPARTMENT_SEED: Partial<Department>[] = [
   {
     typeCode: 'orthopedics',
     displayName: 'Bone, Joint, & Mobility Center',
+    iconName: 'bone',
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -112,6 +125,7 @@ const DEPARTMENT_SEED: Partial<Department>[] = [
   {
     typeCode: 'obgyn',
     displayName: "Women's Health & Maternity Care",
+    iconName: 'heart-handshake',
     description:
       'Comprehensive care for pregnancy, childbirth, and reproductive health.',
     featuredOrdinal: 1,
@@ -122,6 +136,7 @@ const DEPARTMENT_SEED: Partial<Department>[] = [
   {
     typeCode: 'oncology',
     displayName: 'Comprehensive Cancer Center',
+    iconName: 'ribbon',
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -129,6 +144,7 @@ const DEPARTMENT_SEED: Partial<Department>[] = [
   {
     typeCode: 'otolaryngology',
     displayName: 'ENT (Ear, Nose, & Throat) Care',
+    iconName: 'ear',
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -136,6 +152,7 @@ const DEPARTMENT_SEED: Partial<Department>[] = [
   {
     typeCode: 'ophthalmology',
     displayName: 'Eye Center',
+    iconName: 'eye',
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -143,6 +160,7 @@ const DEPARTMENT_SEED: Partial<Department>[] = [
   {
     typeCode: 'urology',
     displayName: 'Urology Center',
+    iconName: 'droplets',
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -150,6 +168,7 @@ const DEPARTMENT_SEED: Partial<Department>[] = [
   {
     typeCode: 'internist',
     displayName: 'Internist & Adult Care Center',
+    iconName: 'stethoscope',
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -157,6 +176,7 @@ const DEPARTMENT_SEED: Partial<Department>[] = [
   {
     typeCode: 'psychiatry',
     displayName: 'Mental Health & Wellness',
+    iconName: 'brain-cog',
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -164,6 +184,7 @@ const DEPARTMENT_SEED: Partial<Department>[] = [
   {
     typeCode: 'physiatry',
     displayName: 'Physical Medicine & Rehabilitation',
+    iconName: 'accessibility',
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -171,6 +192,7 @@ const DEPARTMENT_SEED: Partial<Department>[] = [
   {
     typeCode: 'pulmonology',
     displayName: 'Respiratory Care',
+    iconName: 'wind',
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -178,6 +200,7 @@ const DEPARTMENT_SEED: Partial<Department>[] = [
   {
     typeCode: 'endocrinology',
     displayName: 'Diabetes, Thyroid & Hormone Care',
+    iconName: 'activity',
     isClinical: true,
     isClinic: true,
     isActive: true,
