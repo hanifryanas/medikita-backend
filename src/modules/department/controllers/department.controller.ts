@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Public } from '../../../common/decorators/public.decorator';
 import { Department } from '../entities/department.entity';
@@ -19,13 +19,5 @@ export class DepartmentController {
   @Get('featured')
   async findFeatured(): Promise<Department[]> {
     return await this.departmentService.findFeatured();
-  }
-
-  @Public()
-  @Get(':departmentId')
-  async findOne(
-    @Param('departmentId', ParseIntPipe) departmentId: number,
-  ): Promise<Department> {
-    return await this.departmentService.findOne(departmentId);
   }
 }

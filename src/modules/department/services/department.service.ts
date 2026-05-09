@@ -12,10 +12,20 @@ export class DepartmentService {
   ) {}
 
   async findAll(): Promise<Department[]> {
-    return await this.departmentRepository.find({
+    const departments = await this.departmentRepository.find({
       where: { isActive: true },
-      order: { displayName: 'ASC' },
+      relations: { employees: { doctor: true, nurse: true } },
+      order: {
+        displayName: 'asc',
+        employees: { startDate: 'asc' },
+      },
     });
+
+    departments.forEach((dept) => {
+      dept.employees = this.sortDepartmentEmployees(dept.employees);
+    });
+
+    return departments;
   }
 
   async findFeatured(): Promise<Department[]> {
