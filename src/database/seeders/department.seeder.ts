@@ -4,20 +4,11 @@ import { Seeder } from 'nestjs-seeder';
 import { DataSource, Repository } from 'typeorm';
 import { Department } from '../../modules/department/entities/department.entity';
 
-const DEPARTMENT_SEED: Pick<
-  Department,
-  | 'typeCode'
-  | 'displayName'
-  | 'isFeatured'
-  | 'isClinical'
-  | 'isClinic'
-  | 'isActive'
->[] = [
+const DEPARTMENT_SEED: Partial<Department>[] = [
   // Operational units
   {
     typeCode: 'frontoffice',
     displayName: 'Front Office',
-    isFeatured: false,
     isClinical: false,
     isClinic: false,
     isActive: true,
@@ -25,7 +16,6 @@ const DEPARTMENT_SEED: Pick<
   {
     typeCode: 'backoffice',
     displayName: 'Back Office',
-    isFeatured: false,
     isClinical: false,
     isClinic: false,
     isActive: true,
@@ -33,7 +23,6 @@ const DEPARTMENT_SEED: Pick<
   {
     typeCode: 'services',
     displayName: 'Support Services',
-    isFeatured: false,
     isClinical: false,
     isClinic: false,
     isActive: true,
@@ -42,7 +31,6 @@ const DEPARTMENT_SEED: Pick<
   {
     typeCode: 'laboratory',
     displayName: 'Laboratory',
-    isFeatured: false,
     isClinical: true,
     isClinic: false,
     isActive: true,
@@ -50,7 +38,6 @@ const DEPARTMENT_SEED: Pick<
   {
     typeCode: 'pharmacy',
     displayName: 'Pharmacy',
-    isFeatured: false,
     isClinical: true,
     isClinic: false,
     isActive: true,
@@ -58,7 +45,6 @@ const DEPARTMENT_SEED: Pick<
   {
     typeCode: 'radiology',
     displayName: 'Radiology',
-    isFeatured: false,
     isClinical: true,
     isClinic: false,
     isActive: true,
@@ -66,7 +52,6 @@ const DEPARTMENT_SEED: Pick<
   {
     typeCode: 'emergency',
     displayName: 'ER',
-    isFeatured: true,
     isClinical: true,
     isClinic: false,
     isActive: true,
@@ -74,7 +59,6 @@ const DEPARTMENT_SEED: Pick<
   {
     typeCode: 'generalsurgery',
     displayName: 'Operating Theatre',
-    isFeatured: true,
     isClinical: true,
     isClinic: false,
     isActive: true,
@@ -84,7 +68,9 @@ const DEPARTMENT_SEED: Pick<
   {
     typeCode: 'cardiology',
     displayName: 'Heart Center',
-    isFeatured: true,
+    description:
+      'Expert diagnosis and treatment for heart and cardiovascular conditions.',
+    featuredOrdinal: 2,
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -92,7 +78,9 @@ const DEPARTMENT_SEED: Pick<
   {
     typeCode: 'dermatology',
     displayName: 'Skin & Aesthetic',
-    isFeatured: true,
+    description:
+      'Specialized care for skin conditions, cosmetic treatments, and aesthetic procedures.',
+    featuredOrdinal: 3,
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -100,7 +88,9 @@ const DEPARTMENT_SEED: Pick<
   {
     typeCode: 'pediatrics',
     displayName: 'Children Care',
-    isFeatured: true,
+    description:
+      'Dedicated medical care for infants, children, and adolescents.',
+    featuredOrdinal: 4,
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -108,7 +98,6 @@ const DEPARTMENT_SEED: Pick<
   {
     typeCode: 'neurology',
     displayName: 'Neuroscience Center',
-    isFeatured: true,
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -116,7 +105,6 @@ const DEPARTMENT_SEED: Pick<
   {
     typeCode: 'orthopedics',
     displayName: 'Bone, Joint, & Mobility Center',
-    isFeatured: false,
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -124,7 +112,9 @@ const DEPARTMENT_SEED: Pick<
   {
     typeCode: 'obgyn',
     displayName: "Women's Health & Maternity Care",
-    isFeatured: false,
+    description:
+      'Comprehensive care for pregnancy, childbirth, and reproductive health.',
+    featuredOrdinal: 1,
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -132,7 +122,6 @@ const DEPARTMENT_SEED: Pick<
   {
     typeCode: 'oncology',
     displayName: 'Comprehensive Cancer Center',
-    isFeatured: false,
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -140,7 +129,6 @@ const DEPARTMENT_SEED: Pick<
   {
     typeCode: 'otolaryngology',
     displayName: 'ENT (Ear, Nose, & Throat) Care',
-    isFeatured: false,
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -148,7 +136,6 @@ const DEPARTMENT_SEED: Pick<
   {
     typeCode: 'ophthalmology',
     displayName: 'Eye Center',
-    isFeatured: false,
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -156,7 +143,6 @@ const DEPARTMENT_SEED: Pick<
   {
     typeCode: 'urology',
     displayName: 'Urology Center',
-    isFeatured: false,
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -164,7 +150,6 @@ const DEPARTMENT_SEED: Pick<
   {
     typeCode: 'internist',
     displayName: 'Internist & Adult Care Center',
-    isFeatured: false,
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -172,7 +157,6 @@ const DEPARTMENT_SEED: Pick<
   {
     typeCode: 'psychiatry',
     displayName: 'Mental Health & Wellness',
-    isFeatured: false,
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -180,7 +164,6 @@ const DEPARTMENT_SEED: Pick<
   {
     typeCode: 'physiatry',
     displayName: 'Physical Medicine & Rehabilitation',
-    isFeatured: false,
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -188,7 +171,6 @@ const DEPARTMENT_SEED: Pick<
   {
     typeCode: 'pulmonology',
     displayName: 'Respiratory Care',
-    isFeatured: false,
     isClinical: true,
     isClinic: true,
     isActive: true,
@@ -196,7 +178,6 @@ const DEPARTMENT_SEED: Pick<
   {
     typeCode: 'endocrinology',
     displayName: 'Diabetes, Thyroid & Hormone Care',
-    isFeatured: false,
     isClinical: true,
     isClinic: true,
     isActive: true,

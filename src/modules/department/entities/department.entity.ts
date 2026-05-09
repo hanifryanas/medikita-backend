@@ -14,8 +14,11 @@ export class Department extends BaseEntity {
   @Column({ length: 100 })
   displayName: string;
 
-  @Column({ default: false })
-  isFeatured: boolean;
+  @Column({ type: 'text', nullable: true })
+  description?: string;
+
+  @Column({ type: 'int', nullable: true })
+  featuredOrdinal?: number;
 
   /** True for medically staffed departments (doctors/nurses provide patient
    *  care). False for non-clinical/operational units such as Front Office and
