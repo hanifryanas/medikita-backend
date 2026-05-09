@@ -3,185 +3,16 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 /**
  * Combined migration that:
  *  1. Creates the Department table with `isClinical` and `isClinic` flags.
- *  2. Seeds the initial set of departments (matches DepartmentSeeder).
- *  3. Replaces Employee.department (enum) with Employee.departmentId (FK).
- *  4. Adds Doctor.jobTitle column.
+ *  2. Replaces Employee.department (enum) with Employee.departmentId (FK).
+ *  3. Adds Doctor.jobTitle column.
+ *
+ * Note: department rows are populated by DepartmentSeeder, not this migration.
+ * On a fresh install the Employee table is empty, so the backfill below is a
+ * no-op; on a database that already has the prior schema, departments must be
+ * seeded before this migration is run.
  */
 export class AddDepartmentAndDoctorJobTitle1777884969185 implements MigrationInterface {
   name = 'AddDepartmentAndDoctorJobTitle1777884969185';
-
-  private readonly seedDepartments: Array<{
-    typeCode: string;
-    displayName: string;
-    isFeatured: boolean;
-    isClinical: boolean;
-    isClinic: boolean;
-  }> = [
-    // Operational units
-    {
-      typeCode: 'frontoffice',
-      displayName: 'Front Office',
-      isFeatured: false,
-      isClinical: false,
-      isClinic: false,
-    },
-    {
-      typeCode: 'backoffice',
-      displayName: 'Back Office',
-      isFeatured: false,
-      isClinical: false,
-      isClinic: false,
-    },
-    {
-      typeCode: 'services',
-      displayName: 'Support Services',
-      isFeatured: false,
-      isClinical: false,
-      isClinic: false,
-    },
-    // Clinical support units (no outpatient clinic)
-    {
-      typeCode: 'laboratory',
-      displayName: 'Laboratory',
-      isFeatured: false,
-      isClinical: true,
-      isClinic: false,
-    },
-    {
-      typeCode: 'pharmacy',
-      displayName: 'Pharmacy',
-      isFeatured: false,
-      isClinical: true,
-      isClinic: false,
-    },
-    {
-      typeCode: 'radiology',
-      displayName: 'Radiology',
-      isFeatured: false,
-      isClinical: true,
-      isClinic: false,
-    },
-    {
-      typeCode: 'emergency',
-      displayName: 'ER',
-      isFeatured: true,
-      isClinical: true,
-      isClinic: false,
-    },
-    {
-      typeCode: 'generalsurgery',
-      displayName: 'Operating Theatre',
-      isFeatured: true,
-      isClinical: true,
-      isClinic: false,
-    },
-    // Outpatient clinics (poli)
-    {
-      typeCode: 'cardiology',
-      displayName: 'Heart Center',
-      isFeatured: true,
-      isClinical: true,
-      isClinic: true,
-    },
-    {
-      typeCode: 'dermatology',
-      displayName: 'Skin & Aesthetic',
-      isFeatured: true,
-      isClinical: true,
-      isClinic: true,
-    },
-    {
-      typeCode: 'pediatrics',
-      displayName: 'Children Care',
-      isFeatured: true,
-      isClinical: true,
-      isClinic: true,
-    },
-    {
-      typeCode: 'neurology',
-      displayName: 'Neuroscience Center',
-      isFeatured: true,
-      isClinical: true,
-      isClinic: true,
-    },
-    {
-      typeCode: 'orthopedics',
-      displayName: 'Bone, Joint, & Mobility Center',
-      isFeatured: false,
-      isClinical: true,
-      isClinic: true,
-    },
-    {
-      typeCode: 'obgyn',
-      displayName: "Women's Health & Maternity Care",
-      isFeatured: false,
-      isClinical: true,
-      isClinic: true,
-    },
-    {
-      typeCode: 'oncology',
-      displayName: 'Comprehensive Cancer Center',
-      isFeatured: false,
-      isClinical: true,
-      isClinic: true,
-    },
-    {
-      typeCode: 'otolaryngology',
-      displayName: 'ENT (Ear, Nose, & Throat) Care',
-      isFeatured: false,
-      isClinical: true,
-      isClinic: true,
-    },
-    {
-      typeCode: 'ophthalmology',
-      displayName: 'Eye Center',
-      isFeatured: false,
-      isClinical: true,
-      isClinic: true,
-    },
-    {
-      typeCode: 'urology',
-      displayName: 'Urology Center',
-      isFeatured: false,
-      isClinical: true,
-      isClinic: true,
-    },
-    {
-      typeCode: 'internist',
-      displayName: 'Internist & Adult Care Center',
-      isFeatured: false,
-      isClinical: true,
-      isClinic: true,
-    },
-    {
-      typeCode: 'psychiatry',
-      displayName: 'Mental Health & Wellness',
-      isFeatured: false,
-      isClinical: true,
-      isClinic: true,
-    },
-    {
-      typeCode: 'physiatry',
-      displayName: 'Physical Medicine & Rehabilitation',
-      isFeatured: false,
-      isClinical: true,
-      isClinic: true,
-    },
-    {
-      typeCode: 'pulmonology',
-      displayName: 'Respiratory Care',
-      isFeatured: false,
-      isClinical: true,
-      isClinic: true,
-    },
-    {
-      typeCode: 'endocrinology',
-      displayName: 'Diabetes & Endocrine Center',
-      isFeatured: false,
-      isClinical: true,
-      isClinic: true,
-    },
-  ];
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     // 1. Create Department table
@@ -202,24 +33,13 @@ export class AddDepartmentAndDoctorJobTitle1777884969185 implements MigrationInt
       )`,
     );
 
-    // 2. Seed initial departments (must exist before Employee backfill)
-    const values = this.seedDepartments
-      .map(
-        (d) =>
-          `('${d.typeCode}', '${d.displayName.replace(/'/g, "''")}', ${d.isFeatured}, ${d.isClinical}, ${d.isClinic}, true)`,
-      )
-      .join(', ');
-    await queryRunner.query(
-      `INSERT INTO "Department" ("typeCode", "displayName", "isFeatured", "isClinical", "isClinic", "isActive")
-       VALUES ${values}`,
-    );
-
-    // 3. Add nullable departmentId column on Employee
+    // 2. Add nullable departmentId column on Employee
     await queryRunner.query(
       `ALTER TABLE "Employee" ADD "departmentId" integer`,
     );
 
-    // 4. Backfill from old enum column. Map legacy enum values to new typeCodes.
+    // 3. Backfill from old enum column. Map legacy enum values to new typeCodes.
+    //    No-op on fresh installs (Employee is empty).
     await queryRunner.query(
       `UPDATE "Employee" e
        SET "departmentId" = d."departmentId"
@@ -245,11 +65,11 @@ export class AddDepartmentAndDoctorJobTitle1777884969185 implements MigrationInt
        END`,
     );
 
-    // 5. Drop old enum column and type
+    // 4. Drop old enum column and type
     await queryRunner.query(`ALTER TABLE "Employee" DROP COLUMN "department"`);
     await queryRunner.query(`DROP TYPE "public"."Employee_department_enum"`);
 
-    // 6. Enforce NOT NULL and add FK
+    // 5. Enforce NOT NULL and add FK
     await queryRunner.query(
       `ALTER TABLE "Employee" ALTER COLUMN "departmentId" SET NOT NULL`,
     );
@@ -257,7 +77,7 @@ export class AddDepartmentAndDoctorJobTitle1777884969185 implements MigrationInt
       `ALTER TABLE "Employee" ADD CONSTRAINT "FK_Employee_Department" FOREIGN KEY ("departmentId") REFERENCES "Department"("departmentId") ON DELETE NO ACTION ON UPDATE NO ACTION`,
     );
 
-    // 7. Add Doctor.jobTitle column
+    // 6. Add Doctor.jobTitle column
     await queryRunner.query(
       `ALTER TABLE "Doctor" ADD "jobTitle" character varying(100)`,
     );

@@ -9,7 +9,7 @@ import { User } from '../../modules/user/entities/user.entity';
 import { UserRole } from '../../modules/user/enums/user-role.enum';
 import { generateUser } from './functions';
 
-const STAFF_COUNT = 50;
+const STAFF_COUNT = 40;
 
 const JOB_TITLES_BY_DEPARTMENT: Record<string, string[]> = {
   frontoffice: ['Registration Officer', 'Patient Service Officer'],

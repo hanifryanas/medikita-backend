@@ -12,7 +12,35 @@ import { User } from '../../modules/user/entities/user.entity';
 import { UserRole } from '../../modules/user/enums/user-role.enum';
 import { generateUser } from './functions';
 
-const NURSE_COUNT = 50;
+/** Number of nurses to seed per department typeCode. Totals 100. */
+const NURSE_COUNT_BY_DEPARTMENT: Record<string, number> = {
+  cardiology: 7,
+  dermatology: 5,
+  pediatrics: 9,
+  neurology: 6,
+  orthopedics: 7,
+  obgyn: 9,
+  oncology: 6,
+  otolaryngology: 5,
+  ophthalmology: 5,
+  urology: 5,
+  internist: 8,
+  psychiatry: 6,
+  physiatry: 5,
+  pulmonology: 6,
+  endocrinology: 5,
+  emergency: 4,
+  generalsurgery: 2,
+};
+
+/** Flattened plan: one entry per nurse to be seeded. */
+const NURSE_ASSIGNMENTS: { typeCode: string }[] = Object.entries(
+  NURSE_COUNT_BY_DEPARTMENT,
+).flatMap(([typeCode, count]) =>
+  Array.from({ length: count }, () => ({ typeCode })),
+);
+
+const NURSE_COUNT = NURSE_ASSIGNMENTS.length;
 
 function generateSchedules(): Partial<NurseSchedule>[] {
   const count = faker.number.int({ min: 4, max: 5 });
@@ -47,9 +75,11 @@ export class NurseSeeder implements Seeder {
       if (existingCount > 0) return;
 
       const departments = await manager.findBy(Department, {
-        isClinic: true,
         isActive: true,
       });
+      const departmentByTypeCode = new Map(
+        departments.map((d) => [d.typeCode, d]),
+      );
 
       const users = await manager.save(
         User,
@@ -59,7 +89,13 @@ export class NurseSeeder implements Seeder {
       const employees = await manager.save(
         Employee,
         users.map((user, index) => {
-          const department = faker.helpers.arrayElement(departments);
+          const { typeCode } = NURSE_ASSIGNMENTS[index];
+          const department = departmentByTypeCode.get(typeCode);
+          if (!department) {
+            throw new Error(
+              `NurseSeeder: department '${typeCode}' not found. Run DepartmentSeeder first.`,
+            );
+          }
           const genderPath = user.gender === 'male' ? 'men' : 'women';
           const photoIndex = index % 100;
           return manager.create(Employee, {

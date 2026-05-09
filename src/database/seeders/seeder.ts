@@ -61,8 +61,8 @@ seeder({
     ]),
   ],
 }).run([
-  UserSuperAdminSeeder,
   DepartmentSeeder,
+  UserSuperAdminSeeder,
   EmployeeAdminSeeder,
   EmployeeStaffSeeder,
   PatientSeeder,

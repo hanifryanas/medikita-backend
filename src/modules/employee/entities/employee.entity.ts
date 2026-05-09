@@ -29,7 +29,10 @@ export class Employee extends BaseEntity {
   @Expose()
   get fullName(): string {
     if (!this.user) return '';
-    return `${this.user.firstName} ${this.user.lastName}`;
+    const baseName = `${this.user.firstName} ${this.user.lastName}`;
+    if (!this.doctor) return baseName;
+    const prefixed = `dr. ${baseName}`;
+    return this.doctor.title ? `${prefixed}, ${this.doctor.title}` : prefixed;
   }
 
   @OneToOne(() => Nurse, (nurse) => nurse.employee)

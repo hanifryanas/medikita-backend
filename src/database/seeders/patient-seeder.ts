@@ -17,7 +17,7 @@ const PATIENT_COUNT = 150;
 export class PatientSeeder implements Seeder {
   private generatedPatientUsers: Partial<User>[] = Array.from(
     { length: PATIENT_COUNT },
-    () => generateUser({ includeAddress: true }),
+    (_, i) => generateUser({ includeAddress: true, index: i }),
   );
 
   constructor(

@@ -217,15 +217,26 @@ export class DepartmentSeeder implements Seeder {
 
   async seed() {
     await this.dataSource.transaction(async (manager) => {
-      const existingCount = await manager.count(Department);
-      if (existingCount > 0) return;
+      for (const dept of DEPARTMENT_SEED) {
+        const existing = await manager.findOne(Department, {
+          where: { typeCode: dept.typeCode },
+        });
+        if (existing) {
+          await manager.update(Department, existing.departmentId, {
+            displayName: dept.displayName,
+            iconName: dept.iconName,
+            description: dept.description ?? null,
+            featuredOrdinal: dept.featuredOrdinal ?? null,
+            isClinical: dept.isClinical,
+            isClinic: dept.isClinic,
+            isActive: dept.isActive,
+          });
+        } else {
+          await manager.save(Department, manager.create(Department, dept));
+        }
+      }
 
-      await manager.save(
-        Department,
-        DEPARTMENT_SEED.map((dept) => manager.create(Department, dept)),
-      );
-
-      console.log(`Created ${DEPARTMENT_SEED.length} departments`);
+      console.log(`Seeded ${DEPARTMENT_SEED.length} departments`);
     });
   }
 

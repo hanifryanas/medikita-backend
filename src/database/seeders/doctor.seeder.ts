@@ -12,30 +12,37 @@ import { User } from '../../modules/user/entities/user.entity';
 import { UserRole } from '../../modules/user/enums/user-role.enum';
 import { generateUser } from './functions';
 
-const DOCTOR_COUNT = 50;
-
-/** Maps a department typeCode to the Indonesian specialist title (Sp.XX)
- *  and plain-language job title for doctors assigned to that department. */
-const DOCTOR_TITLE_BY_DEPARTMENT: Record<
+/** Maps a department typeCode to the Indonesian specialist title (Sp.XX),
+ *  plain-language job title, and the number of doctors to seed for it. */
+const DOCTOR_CONFIG_BY_DEPARTMENT: Record<
   string,
-  { title: string; jobTitle: string }
+  { title: string; jobTitle: string; count: number }
 > = {
-  cardiology: { title: 'Sp.JP', jobTitle: 'Cardiologist' },
-  dermatology: { title: 'Sp.KK', jobTitle: 'Dermatologist' },
-  pediatrics: { title: 'Sp.A', jobTitle: 'Pediatrician' },
-  neurology: { title: 'Sp.S', jobTitle: 'Neurologist' },
-  orthopedics: { title: 'Sp.OT', jobTitle: 'Orthopedic Surgeon' },
-  obgyn: { title: 'Sp.OG', jobTitle: 'Obstetrician-Gynecologist' },
-  oncology: { title: 'Sp.Onk', jobTitle: 'Oncologist' },
-  otolaryngology: { title: 'Sp.THT-KL', jobTitle: 'ENT Specialist' },
-  ophthalmology: { title: 'Sp.M', jobTitle: 'Ophthalmologist' },
-  urology: { title: 'Sp.U', jobTitle: 'Urologist' },
-  internist: { title: 'Sp.PD', jobTitle: 'Internist' },
-  psychiatry: { title: 'Sp.KJ', jobTitle: 'Psychiatrist' },
-  physiatry: { title: 'Sp.KFR', jobTitle: 'Physiatrist' },
-  pulmonology: { title: 'Sp.P', jobTitle: 'Pulmonologist' },
-  endocrinology: { title: 'Sp.PD-KEMD', jobTitle: 'Endocrinologist' },
+  cardiology: { title: 'Sp.JP', jobTitle: 'Cardiologist', count: 4 },
+  dermatology: { title: 'Sp.KK', jobTitle: 'Dermatologist', count: 5 },
+  pediatrics: { title: 'Sp.A', jobTitle: 'Pediatrician', count: 6 },
+  neurology: { title: 'Sp.S', jobTitle: 'Neurologist', count: 3 },
+  orthopedics: { title: 'Sp.OT', jobTitle: 'Orthopedic Surgeon', count: 4 },
+  obgyn: { title: 'Sp.OG', jobTitle: 'Obstetrician-Gynecologist', count: 6 },
+  oncology: { title: 'Sp.Onk', jobTitle: 'Oncologist', count: 3 },
+  otolaryngology: { title: 'Sp.THT-KL', jobTitle: 'ENT Specialist', count: 3 },
+  ophthalmology: { title: 'Sp.M', jobTitle: 'Ophthalmologist', count: 3 },
+  urology: { title: 'Sp.U', jobTitle: 'Urologist', count: 3 },
+  internist: { title: 'Sp.PD', jobTitle: 'Internist', count: 5 },
+  psychiatry: { title: 'Sp.KJ', jobTitle: 'Psychiatrist', count: 4 },
+  physiatry: { title: 'Sp.KFR', jobTitle: 'Physiatrist', count: 3 },
+  pulmonology: { title: 'Sp.P', jobTitle: 'Pulmonologist', count: 4 },
+  endocrinology: { title: 'Sp.PD-KEMD', jobTitle: 'Endocrinologist', count: 4 },
 };
+
+/** Flattened plan: one entry per doctor to be seeded. */
+const DOCTOR_ASSIGNMENTS: { typeCode: string }[] = Object.entries(
+  DOCTOR_CONFIG_BY_DEPARTMENT,
+).flatMap(([typeCode, { count }]) =>
+  Array.from({ length: count }, () => ({ typeCode })),
+);
+
+const DOCTOR_COUNT = DOCTOR_ASSIGNMENTS.length;
 
 function generateSchedules(): Partial<DoctorSchedule>[] {
   const count = faker.number.int({ min: 3, max: 6 });
@@ -73,6 +80,9 @@ export class DoctorSeeder implements Seeder {
         isClinic: true,
         isActive: true,
       });
+      const departmentByTypeCode = new Map(
+        departments.map((d) => [d.typeCode, d]),
+      );
 
       const users = await manager.save(
         User,
@@ -82,7 +92,13 @@ export class DoctorSeeder implements Seeder {
       const employees = await manager.save(
         Employee,
         users.map((user, index) => {
-          const department = faker.helpers.arrayElement(departments);
+          const { typeCode } = DOCTOR_ASSIGNMENTS[index];
+          const department = departmentByTypeCode.get(typeCode);
+          if (!department) {
+            throw new Error(
+              `DoctorSeeder: department '${typeCode}' not found. Run DepartmentSeeder first.`,
+            );
+          }
           const genderPath = user.gender === 'male' ? 'men' : 'women';
           const photoIndex = index % 100;
           return manager.create(Employee, {
@@ -98,17 +114,13 @@ export class DoctorSeeder implements Seeder {
 
       const doctors = await manager.save(
         Doctor,
-        employees.map((employee) => {
-          const department = departments.find(
-            (d) => d.departmentId === employee.departmentId,
-          );
-          const titles = department
-            ? DOCTOR_TITLE_BY_DEPARTMENT[department.typeCode]
-            : undefined;
+        employees.map((employee, index) => {
+          const { typeCode } = DOCTOR_ASSIGNMENTS[index];
+          const config = DOCTOR_CONFIG_BY_DEPARTMENT[typeCode];
           return manager.create(Doctor, {
             employee,
-            title: titles?.title,
-            jobTitle: titles?.jobTitle,
+            title: config.title,
+            jobTitle: config.jobTitle,
           });
         }),
       );
