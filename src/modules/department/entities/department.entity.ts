@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
 import { Employee } from '../../employee/entities/employee.entity';
+import { DepartmentContent } from '../interfaces/department-content.interface';
 
 @Entity('Department')
 export class Department extends BaseEntity {
@@ -20,6 +21,9 @@ export class Department extends BaseEntity {
 
   @Column({ type: 'text', nullable: true })
   description?: string;
+
+  @Column({ type: 'jsonb', nullable: true })
+  content?: DepartmentContent;
 
   @Column({ type: 'int', nullable: true })
   featuredOrdinal?: number;
