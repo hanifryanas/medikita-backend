@@ -75,13 +75,13 @@ export class DoctorService {
     if (field && value) {
       return await this.doctorRepository.find({
         where: { [field]: value },
-        relations: { employee: { user: true } },
+        relations: { employee: { user: true }, schedules: true },
         select: selection,
       });
     }
 
     return await this.doctorRepository.find({
-      relations: { employee: { user: true } },
+      relations: { employee: { user: true }, schedules: true },
       select: selection,
     });
   }

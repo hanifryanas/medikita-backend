@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUserId } from '../../../common/decorators/current-user-id.decorator';
+import { Public } from '../../../common/decorators/public.decorator';
 import { RequiredRole } from '../../../common/decorators/required-role.decorator';
 import { UserRole } from '../../user/enums/user-role.enum';
 import { CreateDoctorDto } from '../dtos/create-doctor.dto';
@@ -23,6 +24,7 @@ import { DoctorService } from '../services/doctor.service';
 export class DoctorController {
   constructor(private readonly doctorService: DoctorService) {}
 
+  @Public()
   @Get()
   async findAll(): Promise<Doctor[]> {
     return this.doctorService.findAll();

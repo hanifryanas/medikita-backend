@@ -83,9 +83,7 @@ export class Employee extends BaseEntity {
   @Column({ type: 'int' })
   departmentId: number;
 
-  @ManyToOne(() => Department, (department) => department.employees, {
-    eager: true,
-  })
+  @ManyToOne(() => Department, (department) => department.employees)
   @JoinColumn({ name: 'departmentId' })
   department: Department;
 }

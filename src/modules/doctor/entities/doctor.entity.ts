@@ -1,4 +1,4 @@
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import {
   Column,
   Entity,
@@ -34,7 +34,15 @@ export class Doctor extends BaseEntity {
   jobTitle?: string;
 
   @OneToMany(() => DoctorSchedule, (schedule) => schedule.doctor)
+  @Exclude({ toPlainOnly: true })
+  @Expose({ groups: ['doctor-full-schedule'], toPlainOnly: true })
   schedules?: DoctorSchedule[];
+
+  @Expose({ toPlainOnly: true })
+  get scheduleDays(): DoctorSchedule['day'][] | undefined {
+    if (!this.schedules) return undefined;
+    return [...new Set(this.schedules.map((s) => s.day))];
+  }
 
   @OneToMany(() => Appointment, (appointment) => appointment.doctor)
   appointments?: Appointment[];
