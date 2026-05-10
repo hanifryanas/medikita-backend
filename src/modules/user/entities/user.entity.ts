@@ -25,6 +25,7 @@ export class User extends BaseEntity {
   userId: string;
 
   @Column({ length: 20, unique: true })
+  @Expose({ groups: ['user-full'], toPlainOnly: true })
   identityNumber: string;
 
   @Column({ length: 100, unique: true })
@@ -68,6 +69,7 @@ export class User extends BaseEntity {
   gender: UserGenderType;
 
   @Column()
+  @Expose({ groups: ['user-full'], toPlainOnly: true })
   phoneNumber: string;
 
   @Column({ type: 'date' })
@@ -90,6 +92,7 @@ export class User extends BaseEntity {
   userPatients?: UserPatient[];
 
   @Column({ nullable: true })
+  @Expose({ groups: ['user-full'], toPlainOnly: true })
   address?: string;
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.User })
