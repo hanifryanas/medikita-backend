@@ -23,11 +23,10 @@ export class DepartmentService {
       },
     });
 
-    departments.forEach((dept) => {
+    return departments.map((dept) => {
       dept.employees = this.sortDepartmentEmployees(dept.employees);
+      return dept;
     });
-
-    return departments;
   }
 
   async findFeatured(): Promise<Department[]> {
@@ -45,18 +44,15 @@ export class DepartmentService {
       order: { featuredOrdinal: 'asc' },
     });
 
-    const departmentEmployeeMap = new Map<number, Employee[]>();
-    featuredEmployees.forEach((emp) => {
-      const list = departmentEmployeeMap.get(emp.departmentId) ?? [];
-      list.push(emp);
-      departmentEmployeeMap.set(emp.departmentId, list);
-    });
+    const departmentEmployeeMap = Map.groupBy(
+      featuredEmployees,
+      (emp: Employee) => emp.departmentId,
+    );
 
-    departments.forEach((dept) => {
+    return departments.map((dept) => {
       dept.employees = departmentEmployeeMap.get(dept.departmentId) ?? [];
+      return dept;
     });
-
-    return departments;
   }
 
   async findOne(departmentId: number): Promise<Department> {
