@@ -1,4 +1,4 @@
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { differenceInDays } from 'date-fns';
 import {
   Column,
@@ -47,6 +47,9 @@ export class Employee extends BaseEntity {
   @Column({ type: 'varchar', length: 100, nullable: true })
   jobTitle?: string;
 
+  @Column({ type: 'int', nullable: true })
+  featuredOrdinal?: number;
+
   @Column({ type: 'date' })
   startDate: Date;
 
@@ -81,9 +84,16 @@ export class Employee extends BaseEntity {
   }
 
   @Column({ type: 'int' })
+  @Exclude({ toPlainOnly: true })
   departmentId: number;
 
   @ManyToOne(() => Department, (department) => department.employees)
   @JoinColumn({ name: 'departmentId' })
+  @Exclude({ toPlainOnly: true })
   department: Department;
+
+  @Expose()
+  get departmentTypeCode(): string | undefined {
+    return this.department?.typeCode;
+  }
 }

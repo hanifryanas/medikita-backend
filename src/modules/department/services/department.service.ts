@@ -9,6 +9,8 @@ export class DepartmentService {
   constructor(
     @InjectRepository(Department)
     private readonly departmentRepository: Repository<Department>,
+    @InjectRepository(Employee)
+    private readonly employeeRepository: Repository<Employee>,
   ) {}
 
   async findAll(): Promise<Department[]> {
@@ -31,15 +33,27 @@ export class DepartmentService {
   async findFeatured(): Promise<Department[]> {
     const departments = await this.departmentRepository.find({
       where: { isActive: true, featuredOrdinal: Not(IsNull()) },
-      relations: { employees: { doctor: true, nurse: true } },
-      order: {
-        featuredOrdinal: 'asc',
-        employees: { startDate: 'asc' },
+      order: { featuredOrdinal: 'asc' },
+    });
+
+    const featuredEmployees = await this.employeeRepository.find({
+      where: {
+        featuredOrdinal: Not(IsNull()),
+        department: { isActive: true, featuredOrdinal: Not(IsNull()) },
       },
+      relations: { doctor: true, nurse: true, department: true },
+      order: { featuredOrdinal: 'asc' },
+    });
+
+    const departmentEmployeeMap = new Map<number, Employee[]>();
+    featuredEmployees.forEach((emp) => {
+      const list = departmentEmployeeMap.get(emp.departmentId) ?? [];
+      list.push(emp);
+      departmentEmployeeMap.set(emp.departmentId, list);
     });
 
     departments.forEach((dept) => {
-      dept.employees = this.sortDepartmentEmployees(dept.employees);
+      dept.employees = departmentEmployeeMap.get(dept.departmentId) ?? [];
     });
 
     return departments;

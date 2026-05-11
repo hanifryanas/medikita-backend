@@ -1,7 +1,19 @@
+import { Exclude, Expose } from 'class-transformer';
 import { CreateDateColumn, DeleteDateColumn, UpdateDateColumn } from 'typeorm';
 
 export abstract class BaseEntity {
-  @CreateDateColumn() createdAt: Date;
-  @UpdateDateColumn() updatedAt: Date;
-  @DeleteDateColumn({ nullable: true }) deletedAt?: Date;
+  @Exclude({ toPlainOnly: true })
+  @Expose({ groups: ['audit'], toPlainOnly: true })
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Exclude({ toPlainOnly: true })
+  @Expose({ groups: ['audit'], toPlainOnly: true })
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @Exclude({ toPlainOnly: true })
+  @Expose({ groups: ['audit'], toPlainOnly: true })
+  @DeleteDateColumn({ nullable: true })
+  deletedAt?: Date;
 }
