@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsOrder, Repository } from 'typeorm';
 import { Employee } from '../../employee/entities/employee.entity';
 import { EmployeeService } from '../../employee/services/employee.service';
 import { CreateDoctorDto } from '../dtos/create-doctor.dto';
@@ -71,18 +71,29 @@ export class DoctorService {
     field?: keyof Doctor,
     value?: Doctor[keyof Doctor],
     selection?: (keyof Doctor)[],
+    orderBy: FindOptionsOrder<Doctor> = {
+      employee: { startDate: 'ASC' },
+    },
   ): Promise<Doctor[]> {
     if (field && value) {
       return await this.doctorRepository.find({
         where: { [field]: value },
-        relations: { employee: { user: true }, schedules: true },
+        relations: {
+          employee: { user: true, department: true },
+          schedules: true,
+        },
         select: selection,
+        order: orderBy,
       });
     }
 
     return await this.doctorRepository.find({
-      relations: { employee: { user: true }, schedules: true },
+      relations: {
+        employee: { user: true, department: true },
+        schedules: true,
+      },
       select: selection,
+      order: orderBy,
     });
   }
 

@@ -31,6 +31,14 @@ export class Doctor extends BaseEntity {
   @JoinColumn({ name: 'employeeId' })
   employee: Employee;
 
+  @Expose()
+  get fullName(): string {
+    if (!this.employee) return '';
+    const baseName = this.employee.fullName;
+    const prefixed = `dr. ${baseName}`;
+    return this.title ? `${prefixed}, ${this.title}` : prefixed;
+  }
+
   /** Indonesian specialist title abbreviation (e.g. 'Sp.JP', 'Sp.OG', 'Sp.A').
    *  Appended to the doctor's name. */
   @Column({ nullable: true, length: 50 })
