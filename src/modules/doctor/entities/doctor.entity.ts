@@ -1,5 +1,12 @@
 import { Exclude, Expose } from 'class-transformer';
 import {
+  Day,
+  differenceInCalendarDays,
+  getDay,
+  nextDay,
+  parse,
+} from 'date-fns';
+import {
   Column,
   Entity,
   JoinColumn,
@@ -41,7 +48,17 @@ export class Doctor extends BaseEntity {
   @Expose({ toPlainOnly: true })
   get scheduleDays(): DoctorSchedule['day'][] | undefined {
     if (!this.schedules) return undefined;
-    return [...new Set(this.schedules.map((s) => s.day))];
+
+    const now = new Date();
+    const today = getDay(now);
+    const distance = (day: DoctorSchedule['day']) => {
+      const targetDayIndex = getDay(parse(day, 'EEEE', now)) as Day;
+      if (targetDayIndex === today) return 0;
+      return differenceInCalendarDays(nextDay(now, targetDayIndex), now);
+    };
+
+    const uniqueDays = [...new Set(this.schedules.map((s) => s.day))];
+    return uniqueDays.sort((a, b) => distance(a) - distance(b));
   }
 
   @OneToMany(() => Appointment, (appointment) => appointment.doctor)
