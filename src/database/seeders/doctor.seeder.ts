@@ -125,6 +125,21 @@ export class DoctorSeeder implements Seeder {
         }),
       );
 
+      let offset = 0;
+      const featuredEmployees = Object.values(
+        DOCTOR_CONFIG_BY_DEPARTMENT,
+      ).flatMap(({ count }) => {
+        const group = employees.slice(offset, offset + count);
+        offset += count;
+        return group
+          .sort((a, b) => a.startDate.getTime() - b.startDate.getTime())
+          .slice(0, 3)
+          .map((employee, index) =>
+            Object.assign(employee, { featuredOrdinal: index + 1 }),
+          );
+      });
+      await manager.save(Employee, featuredEmployees);
+
       const schedules = doctors.flatMap((doctor) =>
         generateSchedules().map((schedule) =>
           manager.create(DoctorSchedule, { ...schedule, doctor }),
