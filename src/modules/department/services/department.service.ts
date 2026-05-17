@@ -44,6 +44,8 @@ export class DepartmentService {
       order: { featuredOrdinal: 'asc' },
     });
 
+    featuredEmployees.forEach((emp) => this.wireEmployeeBackRefs(emp));
+
     const departmentEmployeeMap = Map.groupBy(
       featuredEmployees,
       (emp: Employee) => emp.departmentId,
@@ -75,11 +77,21 @@ export class DepartmentService {
 
   private sortDepartmentEmployees(employees?: Employee[]): Employee[] {
     if (!employees) return [];
+    employees.forEach((emp) => this.wireEmployeeBackRefs(emp));
     return employees.sort((a, b) => {
       const roleOrder = (e: Employee) => (e.doctor ? 0 : e.nurse ? 1 : 2);
       const diff = roleOrder(a) - roleOrder(b);
       if (diff !== 0) return diff;
       return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
     });
+  }
+
+  private wireEmployeeBackRefs(employee: Employee): void {
+    if (employee.doctor) {
+      employee.doctor.employee = employee;
+    }
+    if (employee.nurse) {
+      employee.nurse.employee = employee;
+    }
   }
 }
