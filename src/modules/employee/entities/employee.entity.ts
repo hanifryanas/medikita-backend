@@ -38,6 +38,17 @@ export class Employee extends BaseEntity {
   @OneToOne(() => Doctor, (doctor) => doctor.employee)
   doctor?: Doctor;
 
+  @Expose()
+  get displayName(): string {
+    if (!this.user) return '';
+    const base = `${this.user.firstName} ${this.user.lastName}`;
+    if (this.doctor) {
+      const prefixed = `dr. ${base}`;
+      return this.doctor.title ? `${prefixed}, ${this.doctor.title}` : prefixed;
+    }
+    return base;
+  }
+
   @Column({ type: 'varchar', nullable: true })
   photoUrl?: string;
 

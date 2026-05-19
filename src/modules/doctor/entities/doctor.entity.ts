@@ -1,12 +1,6 @@
-import { Exclude, Expose } from 'class-transformer';
+import { Expose } from 'class-transformer';
 import {
-  Day,
-  differenceInCalendarDays,
-  getDay,
-  nextDay,
-  parse,
-} from 'date-fns';
-import {
+  AfterLoad,
   Column,
   Entity,
   JoinColumn,
@@ -15,6 +9,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
+import { Schedule } from '../../../common/entities/schedule.entity';
 import { Status } from '../../../common/enums/status.enum';
 import { Appointment } from '../../appointment/entities/appointment.entity';
 import { Employee } from '../../employee/entities/employee.entity';
@@ -49,24 +44,12 @@ export class Doctor extends BaseEntity {
   jobTitle?: string;
 
   @OneToMany(() => DoctorSchedule, (schedule) => schedule.doctor)
-  @Exclude({ toPlainOnly: true })
-  @Expose({ groups: ['doctor-full-schedule'], toPlainOnly: true })
+  @Expose({ groups: ['doctor-schedule'], toPlainOnly: true })
   schedules?: DoctorSchedule[];
 
-  @Expose({ toPlainOnly: true })
-  get scheduleDays(): DoctorSchedule['day'][] | undefined {
-    if (!this.schedules) return undefined;
-
-    const now = new Date();
-    const today = getDay(now);
-    const distance = (day: DoctorSchedule['day']) => {
-      const targetDayIndex = getDay(parse(day, 'EEEE', now)) as Day;
-      if (targetDayIndex === today) return 0;
-      return differenceInCalendarDays(nextDay(now, targetDayIndex), now);
-    };
-
-    const uniqueDays = [...new Set(this.schedules.map((s) => s.day))];
-    return uniqueDays.sort((a, b) => distance(a) - distance(b));
+  @AfterLoad()
+  private sortSchedulesByCurrentDay(): void {
+    if (this.schedules) Schedule.sortByCurrentDayTime(this.schedules);
   }
 
   @OneToMany(() => Appointment, (appointment) => appointment.doctor)

@@ -6,6 +6,7 @@ import {
   MoreThanOrEqual,
   Repository,
 } from 'typeorm';
+import { Schedule } from '../../../common/entities/schedule.entity';
 import { FilterDoctorScheduleDto } from '../dtos/filter-doctor-schedule.dto';
 import { UpsertDoctorScheduleDto } from '../dtos/upsert-doctor-schedule.dto';
 import { DoctorSchedule } from '../entities/doctor-schedule.entity';
@@ -60,20 +61,25 @@ export class DoctorScheduleService {
       if (filterDoctorScheduleDto.endTime)
         filterOption.endTime = LessThanOrEqual(filterDoctorScheduleDto.endTime);
 
-      return await this.doctorScheduleRepository.find({
+      const results = await this.doctorScheduleRepository.find({
         where: filterOption,
         relations: { doctor: { employee: { user: true } } },
       });
+      return Schedule.sortByCurrentDayTime(results);
     }
 
-    return await this.doctorScheduleRepository.findBy(filterDoctorScheduleDto);
+    const results = await this.doctorScheduleRepository.find({
+      where: filterDoctorScheduleDto,
+    });
+    return Schedule.sortByCurrentDayTime(results);
   }
 
   async findByDoctorId(doctorId: string): Promise<DoctorSchedule[]> {
-    return await this.doctorScheduleRepository.find({
+    const results = await this.doctorScheduleRepository.find({
       where: { doctor: { doctorId } },
       relations: { doctor: { employee: { user: true } } },
     });
+    return Schedule.sortByCurrentDayTime(results);
   }
 
   async findOne(doctorScheduleId: number): Promise<DoctorSchedule> {

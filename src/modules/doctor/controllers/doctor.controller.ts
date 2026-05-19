@@ -26,6 +26,7 @@ export class DoctorController {
 
   @Public()
   @Get()
+  @SerializeOptions({ groups: ['doctor-schedule'] })
   async findAll(): Promise<Doctor[]> {
     return this.doctorService.findAll();
   }

@@ -73,6 +73,7 @@ export class DoctorService {
     selection?: (keyof Doctor)[],
     orderBy: FindOptionsOrder<Doctor> = {
       employee: { startDate: 'ASC' },
+      schedules: { day: 'ASC', startTime: 'ASC' },
     },
   ): Promise<Doctor[]> {
     if (field && value) {
