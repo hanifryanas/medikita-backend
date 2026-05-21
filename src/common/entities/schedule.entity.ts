@@ -1,3 +1,4 @@
+import { Expose } from 'class-transformer';
 import {
   Day as DateFnsDay,
   differenceInCalendarDays,
@@ -10,6 +11,8 @@ import { Day } from '../enums/day.enum';
 import { BaseEntity } from './base.entity';
 
 export abstract class Schedule extends BaseEntity {
+  static readonly SLOT_MINUTES = 20;
+
   @Column({ type: 'enum', enum: Day })
   day: Day;
 
@@ -18,6 +21,36 @@ export abstract class Schedule extends BaseEntity {
 
   @Column({ type: 'time' })
   endTime: string;
+
+  @Expose({ groups: ['schedule-time-slots'], toPlainOnly: true })
+  get timeSlots(): string[] {
+    return Schedule.splitIntoTimeSlots(
+      this.startTime,
+      this.endTime,
+      Schedule.SLOT_MINUTES,
+    );
+  }
+
+  static splitIntoTimeSlots(
+    start: string,
+    end: string,
+    minutes: number = Schedule.SLOT_MINUTES,
+  ): string[] {
+    if (!start || !end || minutes <= 0) return [];
+    const toMinutes = (t: string): number => {
+      const [h, m] = t.split(':').map(Number);
+      return h * 60 + m;
+    };
+    const startMin = toMinutes(start);
+    const endMin = toMinutes(end);
+    const slots: string[] = [];
+    for (let cur = startMin; cur + minutes <= endMin; cur += minutes) {
+      const h = String(Math.floor(cur / 60)).padStart(2, '0');
+      const m = String(cur % 60).padStart(2, '0');
+      slots.push(`${h}:${m}`);
+    }
+    return slots;
+  }
 
   static sortByCurrentDayTime<T extends Schedule>(
     schedules: T[],
