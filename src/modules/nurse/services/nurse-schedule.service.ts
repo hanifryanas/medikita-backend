@@ -1,6 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import {
+  FindOptionsWhere,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
+import { Schedule } from '../../../common/entities/schedule.entity';
 import { FilterNurseScheduleDto } from '../dtos/filter-nurse-schedule.dto';
 import { UpsertNurseScheduleDto } from '../dtos/upsert-nurse-schedule.dto';
 import { NurseSchedule } from '../entities/nurse-schedule.entity';
@@ -15,57 +21,59 @@ export class NurseScheduleService {
   async findBy(
     filterNurseScheduleDto: FilterNurseScheduleDto,
   ): Promise<NurseSchedule[]> {
-    if (filterNurseScheduleDto.nurseId || filterNurseScheduleDto.departmentId) {
-      const filterOption: FindOptionsWhere<NurseSchedule> = {};
+    const filterOption: FindOptionsWhere<NurseSchedule> = {};
 
-      if (filterNurseScheduleDto.nurseId) {
-        const currentNurseWhere = (filterOption.nurse ?? {}) as Record<
-          string,
-          unknown
-        >;
-        filterOption.nurse = {
-          ...currentNurseWhere,
-          nurseId: filterNurseScheduleDto.nurseId,
-        };
-      }
-
-      if (filterNurseScheduleDto.departmentId) {
-        const currentNurseWhere = (filterOption.nurse ?? {}) as Record<
-          string,
-          unknown
-        >;
-        const currentEmployeeWhere = (currentNurseWhere.employee ??
-          {}) as Record<string, unknown>;
-        filterOption.nurse = {
-          ...currentNurseWhere,
-          employee: {
-            ...currentEmployeeWhere,
-            departmentId: filterNurseScheduleDto.departmentId,
-          },
-        };
-      }
-
-      if (filterNurseScheduleDto.day)
-        filterOption.day = filterNurseScheduleDto.day;
-      if (filterNurseScheduleDto.startTime)
-        filterOption.startTime = filterNurseScheduleDto.startTime;
-      if (filterNurseScheduleDto.endTime)
-        filterOption.endTime = filterNurseScheduleDto.endTime;
-
-      return await this.nurseScheduleRepository.find({
-        where: filterOption,
-        relations: { nurse: { employee: { user: true } } },
-      });
+    if (filterNurseScheduleDto.nurseId) {
+      const currentNurseWhere = (filterOption.nurse ?? {}) as Record<
+        string,
+        unknown
+      >;
+      filterOption.nurse = {
+        ...currentNurseWhere,
+        nurseId: filterNurseScheduleDto.nurseId,
+      };
     }
 
-    return await this.nurseScheduleRepository.findBy(filterNurseScheduleDto);
+    if (filterNurseScheduleDto.departmentId) {
+      const currentNurseWhere = (filterOption.nurse ?? {}) as Record<
+        string,
+        unknown
+      >;
+      const currentEmployeeWhere = (currentNurseWhere.employee ?? {}) as Record<
+        string,
+        unknown
+      >;
+      filterOption.nurse = {
+        ...currentNurseWhere,
+        employee: {
+          ...currentEmployeeWhere,
+          departmentId: filterNurseScheduleDto.departmentId,
+        },
+      };
+    }
+
+    if (filterNurseScheduleDto.day)
+      filterOption.day = filterNurseScheduleDto.day;
+    if (filterNurseScheduleDto.startTime)
+      filterOption.startTime = MoreThanOrEqual(
+        filterNurseScheduleDto.startTime,
+      );
+    if (filterNurseScheduleDto.endTime)
+      filterOption.endTime = LessThanOrEqual(filterNurseScheduleDto.endTime);
+
+    const results = await this.nurseScheduleRepository.find({
+      where: filterOption,
+      relations: { nurse: { employee: { user: true } } },
+    });
+    return Schedule.sortByCurrentDayTime(results);
   }
 
   async findByNurseId(nurseId: string): Promise<NurseSchedule[]> {
-    return await this.nurseScheduleRepository.find({
+    const results = await this.nurseScheduleRepository.find({
       where: { nurse: { nurseId } },
       relations: { nurse: { employee: { user: true } } },
     });
+    return Schedule.sortByCurrentDayTime(results);
   }
 
   async findOne(nurseScheduleId: number): Promise<NurseSchedule> {

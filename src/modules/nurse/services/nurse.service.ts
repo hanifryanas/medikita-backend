@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsOrder, Repository } from 'typeorm';
 import { Employee } from '../../employee/entities/employee.entity';
 import { EmployeeService } from '../../employee/services/employee.service';
 import { CreateNurseDto } from '../dtos/create-nurse.dto';
@@ -20,7 +20,13 @@ export class NurseService {
   ) {}
 
   async findById(nurseId: string): Promise<Nurse> {
-    const nurse = await this.nurseRepository.findOne({ where: { nurseId } });
+    const nurse = await this.nurseRepository.findOne({
+      where: { nurseId },
+      relations: {
+        employee: { user: true, department: true },
+        schedules: true,
+      },
+    });
 
     if (!nurse) {
       throw new NotFoundException(`Nurse with ID ${nurseId} not found`);
@@ -71,17 +77,30 @@ export class NurseService {
     field?: keyof Nurse,
     value?: Nurse[keyof Nurse],
     selection?: (keyof Nurse)[],
+    orderBy: FindOptionsOrder<Nurse> = {
+      employee: { startDate: 'ASC' },
+      schedules: { day: 'ASC', startTime: 'ASC' },
+    },
   ): Promise<Nurse[]> {
     if (field && value) {
       return await this.nurseRepository.find({
         where: { [field]: value },
+        relations: {
+          employee: { user: true, department: true },
+          schedules: true,
+        },
         select: selection,
+        order: orderBy,
       });
     }
 
     return await this.nurseRepository.find({
-      relations: { employee: { user: true } },
+      relations: {
+        employee: { user: true, department: true },
+        schedules: true,
+      },
       select: selection,
+      order: orderBy,
     });
   }
 
@@ -131,6 +150,15 @@ export class NurseService {
     if (!nurse) {
       throw new NotFoundException(`Nurse with ID ${nurseId} not found`);
     }
+
+    await this.nurseRepository.update(nurse.nurseId, updateNurseDto);
+  }
+
+  async updateByUserId(
+    userId: string,
+    updateNurseDto: UpdateNurseDto,
+  ): Promise<void> {
+    const nurse = await this.findByUserId(userId);
 
     await this.nurseRepository.update(nurse.nurseId, updateNurseDto);
   }

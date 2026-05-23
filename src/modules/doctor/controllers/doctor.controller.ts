@@ -20,17 +20,17 @@ import { DoctorService } from '../services/doctor.service';
 
 @Controller('doctors')
 @ApiTags('Doctor')
-@ApiBearerAuth()
 export class DoctorController {
   constructor(private readonly doctorService: DoctorService) {}
 
   @Public()
   @Get()
-  @SerializeOptions({ groups: ['doctor-schedule', 'schedule-time-slots'] })
+  @SerializeOptions({ groups: ['doctor-day-schedule'] })
   async findAll(): Promise<Doctor[]> {
     return this.doctorService.findAll();
   }
 
+  @ApiBearerAuth()
   @RequiredRole(UserRole.Admin)
   @Get('full')
   @SerializeOptions({ groups: ['user-full'] })
@@ -38,33 +38,38 @@ export class DoctorController {
     return this.doctorService.findAll();
   }
 
+  @ApiBearerAuth()
   @RequiredRole(UserRole.CareTeam)
   @Get('me')
   async findMe(@CurrentUserId() userId: string): Promise<Doctor> {
     return this.doctorService.findByUserId(userId);
   }
 
-  @RequiredRole(UserRole.CareTeam)
+  @Public()
   @Get(':doctorId')
+  @SerializeOptions({ groups: ['doctor-schedule', 'schedule-time-slots'] })
   async findOneById(@Param('doctorId') doctorId: string): Promise<Doctor> {
     return this.doctorService.findById(doctorId);
   }
 
+  @ApiBearerAuth()
   @RequiredRole(UserRole.SuperAdmin)
   @Post()
   async create(@Body() createDoctorDto: CreateDoctorDto): Promise<string> {
     return this.doctorService.create(createDoctorDto);
   }
 
+  @ApiBearerAuth()
   @RequiredRole(UserRole.CareTeam)
   @Put('me')
   async updateMe(
     @CurrentUserId() userId: string,
     @Body() updateDoctorDto: UpdateDoctorDto,
   ): Promise<void> {
-    await this.doctorService.update(userId, updateDoctorDto);
+    await this.doctorService.updateByUserId(userId, updateDoctorDto);
   }
 
+  @ApiBearerAuth()
   @RequiredRole(UserRole.CareTeam)
   @Put(':doctorId')
   async update(
@@ -74,12 +79,14 @@ export class DoctorController {
     await this.doctorService.update(doctorId, updateDoctorDto);
   }
 
+  @ApiBearerAuth()
   @RequiredRole(UserRole.CareTeam)
   @Delete('me')
   async deleteMe(@CurrentUserId() userId: string): Promise<void> {
     return this.doctorService.deleteByUserId(userId);
   }
 
+  @ApiBearerAuth()
   @RequiredRole(UserRole.SuperAdmin)
   @Delete(':doctorId')
   async delete(@Param('doctorId') doctorId: string): Promise<void> {

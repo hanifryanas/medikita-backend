@@ -21,55 +21,48 @@ export class DoctorScheduleService {
   async findBy(
     filterDoctorScheduleDto: FilterDoctorScheduleDto,
   ): Promise<DoctorSchedule[]> {
-    if (filterDoctorScheduleDto.startTime || filterDoctorScheduleDto.endTime) {
-      const filterOption: FindOptionsWhere<DoctorSchedule> = {};
+    const filterOption: FindOptionsWhere<DoctorSchedule> = {};
 
-      if (filterDoctorScheduleDto.doctorId) {
-        const currentDoctorWhere = (filterOption.doctor ?? {}) as Record<
-          string,
-          unknown
-        >;
-        filterOption.doctor = {
-          ...currentDoctorWhere,
-          doctorId: filterDoctorScheduleDto.doctorId,
-        };
-      }
-
-      if (filterDoctorScheduleDto.departmentId) {
-        const currentDoctorWhere = (filterOption.doctor ?? {}) as Record<
-          string,
-          unknown
-        >;
-        const currentEmployeeWhere = (currentDoctorWhere.employee ??
-          {}) as Record<string, unknown>;
-
-        filterOption.doctor = {
-          ...currentDoctorWhere,
-          employee: {
-            ...currentEmployeeWhere,
-            departmentId: filterDoctorScheduleDto.departmentId,
-          },
-        };
-      }
-
-      if (filterDoctorScheduleDto.day)
-        filterOption.day = filterDoctorScheduleDto.day;
-      if (filterDoctorScheduleDto.startTime)
-        filterOption.startTime = MoreThanOrEqual(
-          filterDoctorScheduleDto.startTime,
-        );
-      if (filterDoctorScheduleDto.endTime)
-        filterOption.endTime = LessThanOrEqual(filterDoctorScheduleDto.endTime);
-
-      const results = await this.doctorScheduleRepository.find({
-        where: filterOption,
-        relations: { doctor: { employee: { user: true } } },
-      });
-      return Schedule.sortByCurrentDayTime(results);
+    if (filterDoctorScheduleDto.doctorId) {
+      const currentDoctorWhere = (filterOption.doctor ?? {}) as Record<
+        string,
+        unknown
+      >;
+      filterOption.doctor = {
+        ...currentDoctorWhere,
+        doctorId: filterDoctorScheduleDto.doctorId,
+      };
     }
 
+    if (filterDoctorScheduleDto.departmentId) {
+      const currentDoctorWhere = (filterOption.doctor ?? {}) as Record<
+        string,
+        unknown
+      >;
+      const currentEmployeeWhere = (currentDoctorWhere.employee ??
+        {}) as Record<string, unknown>;
+
+      filterOption.doctor = {
+        ...currentDoctorWhere,
+        employee: {
+          ...currentEmployeeWhere,
+          departmentId: filterDoctorScheduleDto.departmentId,
+        },
+      };
+    }
+
+    if (filterDoctorScheduleDto.day)
+      filterOption.day = filterDoctorScheduleDto.day;
+    if (filterDoctorScheduleDto.startTime)
+      filterOption.startTime = MoreThanOrEqual(
+        filterDoctorScheduleDto.startTime,
+      );
+    if (filterDoctorScheduleDto.endTime)
+      filterOption.endTime = LessThanOrEqual(filterDoctorScheduleDto.endTime);
+
     const results = await this.doctorScheduleRepository.find({
-      where: filterDoctorScheduleDto,
+      where: filterOption,
+      relations: { doctor: { employee: { user: true } } },
     });
     return Schedule.sortByCurrentDayTime(results);
   }

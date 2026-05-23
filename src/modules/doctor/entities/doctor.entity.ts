@@ -52,6 +52,13 @@ export class Doctor extends BaseEntity {
     if (this.schedules) Schedule.sortByCurrentDayTime(this.schedules);
   }
 
+  @Expose({ groups: ['doctor-day-schedule'], toPlainOnly: true })
+  get scheduleDays(): string[] | undefined {
+    if (!this.schedules) return undefined;
+    const days = this.schedules.map((s) => s.day);
+    return Array.from(new Set(days));
+  }
+
   @OneToMany(() => Appointment, (appointment) => appointment.doctor)
   appointments?: Appointment[];
 

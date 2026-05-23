@@ -20,7 +20,13 @@ export class DoctorService {
   ) {}
 
   async findById(doctorId: string): Promise<Doctor> {
-    const doctor = await this.doctorRepository.findOne({ where: { doctorId } });
+    const doctor = await this.doctorRepository.findOne({
+      where: { doctorId },
+      relations: {
+        employee: { user: true, department: true },
+        schedules: true,
+      },
+    });
 
     if (!doctor) {
       throw new NotFoundException(`Doctor with ID ${doctorId} not found`);
@@ -145,6 +151,15 @@ export class DoctorService {
     if (!doctor) {
       throw new NotFoundException(`Doctor with ID ${doctorId} not found`);
     }
+
+    await this.doctorRepository.update(doctor.doctorId, updateDoctorDto);
+  }
+
+  async updateByUserId(
+    userId: string,
+    updateDoctorDto: UpdateDoctorDto,
+  ): Promise<void> {
+    const doctor = await this.findByUserId(userId);
 
     await this.doctorRepository.update(doctor.doctorId, updateDoctorDto);
   }
