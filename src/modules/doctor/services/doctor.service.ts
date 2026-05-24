@@ -7,27 +7,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsOrder, FindOptionsSelect, Repository } from 'typeorm';
 import { Employee } from '../../employee/entities/employee.entity';
 import { EmployeeService } from '../../employee/services/employee.service';
+import {
+  DOCTOR_DETAIL_SELECTION,
+  DOCTOR_LIST_SELECTION,
+} from '../constants/doctor.selection';
 import { CreateDoctorDto } from '../dtos/create-doctor.dto';
 import { UpdateDoctorDto } from '../dtos/update-doctor.dto';
 import { Doctor } from '../entities/doctor.entity';
-
-const SCHEDULE_LIST_SELECTION: FindOptionsSelect<Doctor>['schedules'] = {
-  doctorScheduleId: true,
-  day: true,
-};
-
-const DOCTOR_LIST_SELECTION: FindOptionsSelect<Doctor> = {
-  doctorId: true,
-  title: true,
-  jobTitle: true,
-  employee: {
-    employeeId: true,
-    startDate: true,
-    user: { userId: true, firstName: true, lastName: true },
-    department: { departmentId: true, typeCode: true },
-  },
-  schedules: SCHEDULE_LIST_SELECTION,
-};
 
 @Injectable()
 export class DoctorService {
@@ -44,14 +30,7 @@ export class DoctorService {
         employee: { user: true, department: true },
         appointments: { patient: true },
       },
-      select: {
-        appointments: {
-          appointmentId: true,
-          endTime: true,
-          status: true,
-          patient: { patientId: true },
-        },
-      },
+      select: DOCTOR_DETAIL_SELECTION,
     });
 
     if (!doctor) {
