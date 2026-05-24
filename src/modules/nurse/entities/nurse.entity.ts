@@ -11,7 +11,6 @@ import {
 } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
 import { Schedule } from '../../../common/entities/schedule.entity';
-import { Status } from '../../../common/enums/status.enum';
 import { Appointment } from '../../appointment/entities/appointment.entity';
 import { Employee } from '../../employee/entities/employee.entity';
 import { NurseSchedule } from './nurse-schedule.entity';
@@ -56,29 +55,4 @@ export class Nurse extends BaseEntity {
 
   @ManyToMany(() => Appointment, (appointment) => appointment.nurses)
   appointments?: Appointment[];
-
-  @Expose({ toPlainOnly: true })
-  get isAvailable(): boolean | undefined {
-    if (!this.schedules || this.schedules.length === 0) return undefined;
-
-    const now = new Date();
-    const day = now.toLocaleString('en-US', {
-      weekday: 'long',
-    }) as unknown as NurseSchedule['day'];
-    const currentTime = now.toTimeString().slice(0, 5);
-
-    const isScheduled = this.schedules.some(
-      (s) =>
-        s.day === day && currentTime >= s.startTime && currentTime <= s.endTime,
-    );
-
-    const hasOngoingAppointment = this.appointments?.some(
-      (a) =>
-        a.status === Status.Incompleted &&
-        a.startTime <= now &&
-        a.endTime >= now,
-    );
-
-    return isScheduled && !hasOngoingAppointment;
-  }
 }

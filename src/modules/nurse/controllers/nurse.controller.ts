@@ -47,7 +47,7 @@ export class NurseController {
 
   @Public()
   @Get(':nurseId')
-  @SerializeOptions({ groups: ['nurse-schedule', 'schedule-time-slots'] })
+  @SerializeOptions({ groups: ['nurse-patient-count'] })
   async findOneById(@Param('nurseId') nurseId: string): Promise<Nurse> {
     return this.nurseService.findById(nurseId);
   }

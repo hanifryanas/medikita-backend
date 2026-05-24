@@ -4,12 +4,30 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsOrder, Repository } from 'typeorm';
+import { FindOptionsOrder, FindOptionsSelect, Repository } from 'typeorm';
 import { Employee } from '../../employee/entities/employee.entity';
 import { EmployeeService } from '../../employee/services/employee.service';
 import { CreateDoctorDto } from '../dtos/create-doctor.dto';
 import { UpdateDoctorDto } from '../dtos/update-doctor.dto';
 import { Doctor } from '../entities/doctor.entity';
+
+const SCHEDULE_LIST_SELECTION: FindOptionsSelect<Doctor>['schedules'] = {
+  doctorScheduleId: true,
+  day: true,
+};
+
+const DOCTOR_LIST_SELECTION: FindOptionsSelect<Doctor> = {
+  doctorId: true,
+  title: true,
+  jobTitle: true,
+  employee: {
+    employeeId: true,
+    startDate: true,
+    user: { userId: true, firstName: true, lastName: true },
+    department: { departmentId: true, typeCode: true },
+  },
+  schedules: SCHEDULE_LIST_SELECTION,
+};
 
 @Injectable()
 export class DoctorService {
@@ -24,7 +42,15 @@ export class DoctorService {
       where: { doctorId },
       relations: {
         employee: { user: true, department: true },
-        schedules: true,
+        appointments: { patient: true },
+      },
+      select: {
+        appointments: {
+          appointmentId: true,
+          endTime: true,
+          status: true,
+          patient: { patientId: true },
+        },
       },
     });
 
@@ -82,6 +108,10 @@ export class DoctorService {
       schedules: { day: 'ASC', startTime: 'ASC' },
     },
   ): Promise<Doctor[]> {
+    const select: FindOptionsSelect<Doctor> = selection
+      ? Object.fromEntries(selection.map((key) => [key, true]))
+      : DOCTOR_LIST_SELECTION;
+
     if (field && value) {
       return await this.doctorRepository.find({
         where: { [field]: value },
@@ -89,7 +119,7 @@ export class DoctorService {
           employee: { user: true, department: true },
           schedules: true,
         },
-        select: selection,
+        select,
         order: orderBy,
       });
     }
@@ -99,7 +129,7 @@ export class DoctorService {
         employee: { user: true, department: true },
         schedules: true,
       },
-      select: selection,
+      select,
       order: orderBy,
     });
   }

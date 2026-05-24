@@ -4,12 +4,26 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsOrder, Repository } from 'typeorm';
+import { FindOptionsOrder, FindOptionsSelect, Repository } from 'typeorm';
 import { Employee } from '../../employee/entities/employee.entity';
 import { EmployeeService } from '../../employee/services/employee.service';
 import { CreateNurseDto } from '../dtos/create-nurse.dto';
 import { UpdateNurseDto } from '../dtos/update-nurse.dto';
 import { Nurse } from '../entities/nurse.entity';
+
+/** Full schedule columns needed for detail responses (time slots, etc.). */
+const SCHEDULE_DETAIL_SELECT: FindOptionsSelect<Nurse>['schedules'] = {
+  nurseScheduleId: true,
+  day: true,
+  startTime: true,
+  endTime: true,
+};
+
+/** Minimal schedule columns needed for list responses (scheduleDays only). */
+const SCHEDULE_LIST_SELECT: FindOptionsSelect<Nurse>['schedules'] = {
+  nurseScheduleId: true,
+  day: true,
+};
 
 @Injectable()
 export class NurseService {
@@ -26,6 +40,7 @@ export class NurseService {
         employee: { user: true, department: true },
         schedules: true,
       },
+      select: { schedules: SCHEDULE_DETAIL_SELECT },
     });
 
     if (!nurse) {
@@ -82,6 +97,10 @@ export class NurseService {
       schedules: { day: 'ASC', startTime: 'ASC' },
     },
   ): Promise<Nurse[]> {
+    const select: FindOptionsSelect<Nurse> = selection
+      ? Object.fromEntries(selection.map((key) => [key, true]))
+      : { schedules: SCHEDULE_LIST_SELECT };
+
     if (field && value) {
       return await this.nurseRepository.find({
         where: { [field]: value },
@@ -89,7 +108,7 @@ export class NurseService {
           employee: { user: true, department: true },
           schedules: true,
         },
-        select: selection,
+        select,
         order: orderBy,
       });
     }
@@ -99,7 +118,7 @@ export class NurseService {
         employee: { user: true, department: true },
         schedules: true,
       },
-      select: selection,
+      select,
       order: orderBy,
     });
   }

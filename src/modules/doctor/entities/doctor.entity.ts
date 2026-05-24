@@ -1,4 +1,4 @@
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import {
   AfterLoad,
   Column,
@@ -44,7 +44,7 @@ export class Doctor extends BaseEntity {
   jobTitle?: string;
 
   @OneToMany(() => DoctorSchedule, (schedule) => schedule.doctor)
-  @Expose({ groups: ['doctor-schedule'], toPlainOnly: true })
+  @Exclude({ toPlainOnly: true })
   schedules?: DoctorSchedule[];
 
   @AfterLoad()
@@ -60,30 +60,24 @@ export class Doctor extends BaseEntity {
   }
 
   @OneToMany(() => Appointment, (appointment) => appointment.doctor)
+  @Exclude({ toPlainOnly: true })
   appointments?: Appointment[];
 
-  @Expose({ toPlainOnly: true })
-  get isAvailable(): boolean | undefined {
-    if (!this.schedules || this.schedules.length === 0) return undefined;
+  @Expose({ groups: ['doctor-patient-count'], toPlainOnly: true })
+  get patientCount(): number {
+    if (!this.appointments) return 0;
 
     const now = new Date();
-    const day = now.toLocaleString('en-US', {
-      weekday: 'long',
-    }) as unknown as DoctorSchedule['day'];
-    const currentTime = now.toTimeString().slice(0, 5);
-
-    const isScheduled = this.schedules.some(
-      (s) =>
-        s.day === day && currentTime >= s.startTime && currentTime <= s.endTime,
-    );
-
-    const hasOngoingAppointment = this.appointments?.some(
-      (a) =>
-        a.status === Status.Incompleted &&
-        a.startTime <= now &&
-        a.endTime >= now,
-    );
-
-    return isScheduled && !hasOngoingAppointment;
+    const patientIds = new Set<string>();
+    for (const appointment of this.appointments) {
+      if (
+        appointment.status === Status.Completed &&
+        appointment.endTime <= now &&
+        appointment.patient?.patientId
+      ) {
+        patientIds.add(appointment.patient.patientId);
+      }
+    }
+    return patientIds.size;
   }
 }
