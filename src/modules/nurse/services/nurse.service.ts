@@ -7,23 +7,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsOrder, FindOptionsSelect, Repository } from 'typeorm';
 import { Employee } from '../../employee/entities/employee.entity';
 import { EmployeeService } from '../../employee/services/employee.service';
+import {
+  NURSE_DETAIL_SELECTION,
+  NURSE_LIST_SELECTION,
+} from '../constants/nurse.selection';
 import { CreateNurseDto } from '../dtos/create-nurse.dto';
 import { UpdateNurseDto } from '../dtos/update-nurse.dto';
 import { Nurse } from '../entities/nurse.entity';
-
-/** Full schedule columns needed for detail responses (time slots, etc.). */
-const SCHEDULE_DETAIL_SELECT: FindOptionsSelect<Nurse>['schedules'] = {
-  nurseScheduleId: true,
-  day: true,
-  startTime: true,
-  endTime: true,
-};
-
-/** Minimal schedule columns needed for list responses (scheduleDays only). */
-const SCHEDULE_LIST_SELECT: FindOptionsSelect<Nurse>['schedules'] = {
-  nurseScheduleId: true,
-  day: true,
-};
 
 @Injectable()
 export class NurseService {
@@ -40,7 +30,7 @@ export class NurseService {
         employee: { user: true, department: true },
         schedules: true,
       },
-      select: { schedules: SCHEDULE_DETAIL_SELECT },
+      select: NURSE_DETAIL_SELECTION,
     });
 
     if (!nurse) {
@@ -99,7 +89,7 @@ export class NurseService {
   ): Promise<Nurse[]> {
     const select: FindOptionsSelect<Nurse> = selection
       ? Object.fromEntries(selection.map((key) => [key, true]))
-      : { schedules: SCHEDULE_LIST_SELECT };
+      : NURSE_LIST_SELECTION;
 
     if (field && value) {
       return await this.nurseRepository.find({
