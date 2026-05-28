@@ -21,11 +21,17 @@ export class Appointment extends BaseEntity {
   @Column({ type: 'enum', enum: Status, default: Status.Incompleted })
   status: Status;
 
-  @Column({ type: 'timestamp' })
-  startTime: Date;
+  @Column({ type: 'date' })
+  date: Date;
 
-  @Column({ type: 'timestamp' })
-  endTime: Date;
+  @Column({ type: 'varchar', length: 5 })
+  timeSlot: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  startTime?: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  endTime?: Date;
 
   @ManyToOne(() => Patient, (patient) => patient.appointments, { eager: true })
   @JoinColumn({ name: 'patientId' })

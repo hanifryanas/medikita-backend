@@ -18,6 +18,6 @@ import { NurseService } from './services/nurse.service';
     DepartmentModule,
   ],
   providers: [NurseService, NurseScheduleService, EmployeeService, UserService],
-  controllers: [NurseController, NurseScheduleController],
+  controllers: [NurseScheduleController, NurseController],
 })
 export class NurseModule {}

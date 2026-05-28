@@ -1,9 +1,7 @@
-import { PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString } from 'class-validator';
-import { DoctorSchedule } from '../entities/doctor-schedule.entity';
+import { IsInt, IsOptional, IsString, Matches } from 'class-validator';
 
-export class FilterDoctorScheduleDto extends PartialType(DoctorSchedule) {
+export class FilterDoctorScheduleDto {
   @IsOptional()
   @IsString()
   doctorId?: string;
@@ -12,4 +10,16 @@ export class FilterDoctorScheduleDto extends PartialType(DoctorSchedule) {
   @IsInt()
   @Type(() => Number)
   departmentId?: number;
+
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
+    message: 'startDate must be in yyyy-MM-dd format',
+  })
+  startDate?: string;
+
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
+    message: 'endDate must be in yyyy-MM-dd format',
+  })
+  endDate?: string;
 }

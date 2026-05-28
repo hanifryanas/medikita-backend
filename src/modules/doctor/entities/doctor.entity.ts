@@ -27,8 +27,8 @@ export class Doctor extends BaseEntity {
   employee: Employee;
 
   @Expose()
-  get fullName(): string {
-    if (!this.employee) return '';
+  get fullName(): string | undefined {
+    if (!this.employee) return undefined;
     const baseName = this.employee.fullName;
     const prefixed = `dr. ${baseName}`;
     return this.title ? `${prefixed}, ${this.title}` : prefixed;
@@ -72,6 +72,7 @@ export class Doctor extends BaseEntity {
     for (const appointment of this.appointments) {
       if (
         appointment.status === Status.Completed &&
+        appointment.endTime &&
         appointment.endTime <= now &&
         appointment.patient?.patientId
       ) {
