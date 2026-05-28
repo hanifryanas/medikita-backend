@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Seeder } from 'nestjs-seeder';
 import { DataSource, IsNull, Not, Repository } from 'typeorm';
+import { formatDate } from '../../common/functions/format-date';
 import { Department } from '../../modules/department/entities/department.entity';
 import { Employee } from '../../modules/employee/entities/employee.entity';
 import { User } from '../../modules/user/entities/user.entity';
@@ -93,7 +94,7 @@ export class EmployeeStaffSeeder implements Seeder {
           const photoIndex = index % 100;
           return manager.create(Employee, {
             user,
-            startDate: faker.date.past({ years: 8 }),
+            startDate: formatDate(faker.date.past({ years: 8 })),
             departmentId: department.departmentId,
             jobTitle,
             photoUrl: faker.datatype.boolean({ probability: 0.65 })

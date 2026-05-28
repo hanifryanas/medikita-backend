@@ -1,12 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
 import {
-  IsDate,
   IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
+  Matches,
 } from 'class-validator';
+import { stardartDateFormat } from '../../../common/functions/format-date';
 import { UserGenderType } from '../../user/enums/user-gender.enum';
 import { UserRelationship } from '../../user/enums/user-relationship.enum';
 
@@ -54,9 +54,10 @@ export class CreatePatientDto {
   phoneNumber: string;
 
   @ApiProperty({ type: String, format: 'date' })
-  @Type(() => Date)
-  @IsDate()
-  dateOfBirth: Date;
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
+    message: `dateOfBirth must be in ${stardartDateFormat} format`,
+  })
+  dateOfBirth: string;
 
   @ApiPropertyOptional()
   @IsOptional()

@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Seeder } from 'nestjs-seeder';
 import { DataSource, Repository } from 'typeorm';
+import { formatDate } from '../../common/functions/format-date';
 import { Department } from '../../modules/department/entities/department.entity';
 import { Employee } from '../../modules/employee/entities/employee.entity';
 import { User } from '../../modules/user/entities/user.entity';
@@ -21,7 +22,9 @@ export class UserSuperAdminSeeder implements Seeder {
     gender: UserGenderType.Male,
     role: UserRole.SuperAdmin,
     phoneNumber: `628${faker.string.numeric(10)}`,
-    dateOfBirth: faker.date.birthdate({ min: 1970, max: 2000, mode: 'year' }),
+    dateOfBirth: formatDate(
+      faker.date.birthdate({ min: 1970, max: 2000, mode: 'year' }),
+    ),
   };
 
   constructor(
@@ -50,7 +53,7 @@ export class UserSuperAdminSeeder implements Seeder {
         Employee,
         manager.create(Employee, {
           user,
-          startDate: new Date(),
+          startDate: formatDate(new Date()),
           departmentId: backOffice.departmentId,
         }),
       );

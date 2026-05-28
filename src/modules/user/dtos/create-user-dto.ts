@@ -1,13 +1,16 @@
 import { faker } from '@faker-js/faker';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
 import {
-  IsDate,
   IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
+  Matches,
 } from 'class-validator';
+import {
+  formatDate,
+  stardartDateFormat,
+} from '../../../common/functions/format-date';
 import { User } from '../entities/user.entity';
 import { UserGenderType } from '../enums/user-gender.enum';
 
@@ -22,11 +25,13 @@ const exampleEmail = `${exampleUserName}@mail.com`;
 const examplePassword = faker.helpers
   .arrayElement(['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'])
   .repeat(8);
-const exampleDateOfBirth = faker.date.birthdate({
-  min: 1959,
-  max: 2006,
-  mode: 'year',
-});
+const exampleDateOfBirth = formatDate(
+  faker.date.birthdate({
+    min: 1959,
+    max: 2006,
+    mode: 'year',
+  }),
+);
 const examplePhoneNumber = `62${faker.phone.number().replace(/\D/g, '').slice(0, 10)}`;
 const exampleAddress = faker.location.streetAddress();
 
@@ -85,10 +90,11 @@ export class CreateUserDto implements Partial<User> {
     example: exampleDateOfBirth,
     description: 'Date of birth',
   })
-  @IsDate()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
+    message: `dateOfBirth must be in ${stardartDateFormat} format`,
+  })
   @IsNotEmpty()
-  @Type(() => Date)
-  dateOfBirth: Date;
+  dateOfBirth: string;
 
   @ApiPropertyOptional({
     example: examplePhoneNumber,

@@ -1,4 +1,5 @@
 import { fakerID_ID as faker } from '@faker-js/faker';
+import { formatDate } from '../../../common/functions/format-date';
 import { User } from '../../../modules/user/entities/user.entity';
 import { UserGenderType } from '../../../modules/user/enums/user-gender.enum';
 import { UserRole } from '../../../modules/user/enums/user-role.enum';
@@ -46,11 +47,13 @@ export function generateUser(options: GenerateUserOptions = {}): Partial<User> {
     lastName,
     gender,
     phoneNumber: `628${faker.string.numeric(10)}`,
-    dateOfBirth: faker.date.birthdate({
-      min: birthYearRange.min,
-      max: birthYearRange.max,
-      mode: 'year',
-    }),
+    dateOfBirth: formatDate(
+      faker.date.birthdate({
+        min: birthYearRange.min,
+        max: birthYearRange.max,
+        mode: 'year',
+      }),
+    ),
   };
 
   if (resolvedRole) user.role = resolvedRole;

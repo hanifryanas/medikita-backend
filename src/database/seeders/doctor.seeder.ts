@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Seeder } from 'nestjs-seeder';
 import { DataSource, Repository } from 'typeorm';
 import { Day } from '../../common/enums/day.enum';
+import { formatDate } from '../../common/functions/format-date';
 import { Department } from '../../modules/department/entities/department.entity';
 import { DoctorSchedule } from '../../modules/doctor/entities/doctor-schedule.entity';
 import { Doctor } from '../../modules/doctor/entities/doctor.entity';
@@ -103,7 +104,7 @@ export class DoctorSeeder implements Seeder {
           const photoIndex = index % 100;
           return manager.create(Employee, {
             user,
-            startDate: faker.date.past({ years: 5 }),
+            startDate: formatDate(faker.date.past({ years: 5 })),
             departmentId: department.departmentId,
             photoUrl: faker.datatype.boolean({ probability: 0.65 })
               ? `https://randomuser.me/api/portraits/${genderPath}/${photoIndex}.jpg`

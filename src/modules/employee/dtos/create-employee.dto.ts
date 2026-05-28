@@ -1,14 +1,17 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
-  IsDate,
   IsEnum,
   IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
+  Matches,
 } from 'class-validator';
-import { formatDate } from 'date-fns';
+import {
+  formatDate,
+  stardartDateFormat,
+} from '../../../common/functions/format-date';
 import { UserRole } from '../../user/enums/user-role.enum';
 
 export class CreateEmployeeDto {
@@ -18,12 +21,13 @@ export class CreateEmployeeDto {
   userId: string;
 
   @ApiProperty({
-    example: formatDate(new Date(), 'yyyy-MM-dd'),
+    example: formatDate(new Date()),
   })
-  @IsDate()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
+    message: `startDate must be in ${stardartDateFormat} format`,
+  })
   @IsNotEmpty()
-  @Type(() => Date)
-  startDate: Date;
+  startDate: string;
 
   @ApiProperty({
     example: UserRole.Staff,
