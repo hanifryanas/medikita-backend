@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
 import { Status } from '../../../common/enums/status.enum';
+import { dateColumnTransformer } from '../../../common/transformers/date-column.transformer';
 import { Doctor } from '../../doctor/entities/doctor.entity';
 import { Nurse } from '../../nurse/entities/nurse.entity';
 import { Patient } from '../../patient/entities/patient.entity';
@@ -21,8 +22,8 @@ export class Appointment extends BaseEntity {
   @Column({ type: 'enum', enum: Status, default: Status.Incompleted })
   status: Status;
 
-  @Column({ type: 'date' })
-  date: Date;
+  @Column({ type: 'date', transformer: dateColumnTransformer })
+  date: string;
 
   @Column({ type: 'varchar', length: 5 })
   timeSlot: string;

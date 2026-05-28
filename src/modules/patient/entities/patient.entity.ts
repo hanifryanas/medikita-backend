@@ -2,6 +2,7 @@ import { Expose } from 'class-transformer';
 import { differenceInYears } from 'date-fns';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
+import { dateColumnTransformer } from '../../../common/transformers/date-column.transformer';
 import { Appointment } from '../../appointment/entities/appointment.entity';
 import { UserPatient } from '../../user/entities/user-patient.entity';
 import { UserGenderType } from '../../user/enums/user-gender.enum';
@@ -31,8 +32,8 @@ export class Patient extends BaseEntity {
   @Column()
   phoneNumber: string;
 
-  @Column({ type: 'date' })
-  dateOfBirth: Date;
+  @Column({ type: 'date', transformer: dateColumnTransformer })
+  dateOfBirth: string;
 
   @Column({ nullable: true })
   address?: string;

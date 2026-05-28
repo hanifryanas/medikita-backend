@@ -9,6 +9,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
+import { dateColumnTransformer } from '../../../common/transformers/date-column.transformer';
 import { Department } from '../../department/entities/department.entity';
 import { Doctor } from '../../doctor/entities/doctor.entity';
 import { Nurse } from '../../nurse/entities/nurse.entity';
@@ -58,11 +59,11 @@ export class Employee extends BaseEntity {
   @Column({ type: 'int', nullable: true })
   featuredOrdinal?: number;
 
-  @Column({ type: 'date' })
-  startDate: Date;
+  @Column({ type: 'date', transformer: dateColumnTransformer })
+  startDate: string;
 
-  @Column({ type: 'date', nullable: true })
-  retirementDate?: Date;
+  @Column({ type: 'date', nullable: true, transformer: dateColumnTransformer })
+  retirementDate?: string;
 
   @Expose()
   get employmentDuration(): string {

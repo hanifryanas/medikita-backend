@@ -132,7 +132,7 @@ export class DoctorSeeder implements Seeder {
         const group = employees.slice(offset, offset + count);
         offset += count;
         return group
-          .sort((a, b) => a.startDate.getTime() - b.startDate.getTime())
+          .sort((a, b) => a.startDate.localeCompare(b.startDate))
           .slice(0, 3)
           .map((employee, index) =>
             Object.assign(employee, { featuredOrdinal: index + 1 }),

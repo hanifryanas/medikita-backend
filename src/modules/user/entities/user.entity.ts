@@ -13,6 +13,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
+import { dateColumnTransformer } from '../../../common/transformers/date-column.transformer';
 import { Employee } from '../../employee/entities/employee.entity';
 import { UserGenderType } from '../enums/user-gender.enum';
 import { UserRole } from '../enums/user-role.enum';
@@ -72,8 +73,8 @@ export class User extends BaseEntity {
   @Expose({ groups: ['user-full'], toPlainOnly: true })
   phoneNumber: string;
 
-  @Column({ type: 'date' })
-  dateOfBirth: Date;
+  @Column({ type: 'date', transformer: dateColumnTransformer })
+  dateOfBirth: string;
 
   @Expose()
   get age(): number {

@@ -176,7 +176,7 @@ export class DoctorScheduleService {
       where: {
         doctor: { doctorId: In(doctorIds) },
         status: Not(Status.Cancelled),
-        date: Between(startDate, endDate),
+        date: Between(formatDate(startDate), formatDate(endDate)),
       },
       relations: { doctor: true },
     });
