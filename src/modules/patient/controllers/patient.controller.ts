@@ -63,10 +63,11 @@ export class PatientController {
   }
 
   @RequiredRole(UserRole.User)
-  @Post()
-  async create(@Body() createPatientDto: CreatePatientDto): Promise<string> {
-    const { userId, relationship, ...patientData } = createPatientDto;
-    await this.userService.findOneBy({ userId });
+  @Post('me')
+  async create(
+    @CurrentUserId() userId: string,
+    @Body() createPatientDto: CreatePatientDto): Promise<string> {
+    const { relationship, ...patientData } = createPatientDto;
 
     const patientId = await this.patientService.create(patientData);
     await this.patientService.linkUser(userId, patientId, relationship);

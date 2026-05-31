@@ -11,11 +11,6 @@ import { UserGenderType } from '../../user/enums/user-gender.enum';
 import { UserRelationship } from '../../user/enums/user-relationship.enum';
 
 export class CreatePatientDto {
-  @ApiProperty({ description: 'User to link this patient profile to' })
-  @IsString()
-  @IsNotEmpty()
-  userId: string;
-
   @ApiProperty({
     enum: UserRelationship,
     enumName: 'UserRelationship',
