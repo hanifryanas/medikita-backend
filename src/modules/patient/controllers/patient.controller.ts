@@ -66,7 +66,8 @@ export class PatientController {
   @Post('me')
   async create(
     @CurrentUserId() userId: string,
-    @Body() createPatientDto: CreatePatientDto): Promise<string> {
+    @Body() createPatientDto: CreatePatientDto,
+  ): Promise<string> {
     const { relationship, ...patientData } = createPatientDto;
 
     const patientId = await this.patientService.create(patientData);
