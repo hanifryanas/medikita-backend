@@ -70,7 +70,7 @@ export class PatientInsuranceService {
 
   async delete(patientInsuranceId: number): Promise<void> {
     const result =
-      await this.patientInsuranceRepository.delete(patientInsuranceId);
+      await this.patientInsuranceRepository.softDelete(patientInsuranceId);
 
     if (!result.affected) {
       throw new BadRequestException(
@@ -80,7 +80,7 @@ export class PatientInsuranceService {
   }
 
   async deleteByPatientId(patientId: string): Promise<void> {
-    const result = await this.patientInsuranceRepository.delete({
+    const result = await this.patientInsuranceRepository.softDelete({
       patient: { patientId },
     });
 

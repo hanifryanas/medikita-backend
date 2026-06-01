@@ -12,6 +12,7 @@ import { RequiredRole } from '../../../common/decorators/required-role.decorator
 import { UserRole } from '../../user/enums/user-role.enum';
 import { CreatePatientInsuranceDto } from '../dtos/create-patient-insurance.dto';
 import { PatientInsurance } from '../entities/patient-insurance.entity';
+import { Patient } from '../entities/patient.entity';
 import { PatientInsuranceService } from '../services/patient-insurance.service';
 import { PatientService } from '../services/patient.service';
 
@@ -46,12 +47,10 @@ export class PatientInsuranceController {
   ): Promise<PatientInsurance> {
     const patient = await this.patientService.findOneBy('patientId', patientId);
 
-    const createPatientInsurance = {
+    return this.patientInsuranceService.create({
       ...createPatientInsuranceDto,
-      patientId: patient?.patientId,
-    };
-
-    return this.patientInsuranceService.create(createPatientInsurance);
+      patient: { patientId: patient.patientId } as Patient,
+    });
   }
 
   @Put(':patientInsuranceId')
@@ -65,7 +64,7 @@ export class PatientInsuranceController {
     );
   }
 
-  @RequiredRole(UserRole.Staff)
+  @RequiredRole(UserRole.User)
   @Delete(':patientInsuranceId')
   async delete(
     @Param('patientInsuranceId') patientInsuranceId: number,
