@@ -43,7 +43,7 @@ export class PatientInsuranceController {
   async create(
     @Param('patientId') patientId: string,
     @Body() createPatientInsuranceDto: CreatePatientInsuranceDto,
-  ): Promise<number> {
+  ): Promise<PatientInsurance> {
     const patient = await this.patientService.findOneBy('patientId', patientId);
 
     const createPatientInsurance = {

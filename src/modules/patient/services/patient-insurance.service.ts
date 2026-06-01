@@ -11,7 +11,7 @@ export class PatientInsuranceService {
 
   async findAll(): Promise<PatientInsurance[]> {
     return await this.patientInsuranceRepository.find({
-      select: ['insuranceProvider', 'policyNumber'],
+      relations: { patient: true },
     });
   }
 
@@ -25,6 +25,7 @@ export class PatientInsuranceService {
   async findOne(patientInsuranceId: number): Promise<PatientInsurance> {
     const patientInsurance = await this.patientInsuranceRepository.findOne({
       where: { patientInsuranceId },
+      relations: { patient: true },
     });
 
     if (!patientInsurance) {
@@ -36,7 +37,9 @@ export class PatientInsuranceService {
     return patientInsurance;
   }
 
-  async create(patientInsurance: Partial<PatientInsurance>): Promise<number> {
+  async create(
+    patientInsurance: Partial<PatientInsurance>,
+  ): Promise<PatientInsurance> {
     const newPatientInsurance =
       this.patientInsuranceRepository.create(patientInsurance);
     const createdPatientInsurance =
@@ -46,7 +49,7 @@ export class PatientInsuranceService {
       throw new BadRequestException('Failed to create patient insurance');
     }
 
-    return createdPatientInsurance.patientInsuranceId;
+    return createdPatientInsurance;
   }
 
   async update(

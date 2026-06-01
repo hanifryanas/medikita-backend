@@ -62,7 +62,7 @@ export class PatientService {
     const userPatients = await this.userPatientRepository.find({
       where: { userId },
       order: { ordinal: 'ASC' },
-      relations: { patient: true },
+      relations: { patient: { insurances: true } },
     });
 
     return userPatients.map(({ patient, relationship, ordinal }) => {
@@ -78,7 +78,7 @@ export class PatientService {
   ): Promise<Patient> {
     const userPatient = await this.userPatientRepository.findOne({
       where: { userId, patientId },
-      relations: { patient: true },
+      relations: { patient: { insurances: true } },
     });
 
     if (!userPatient) {

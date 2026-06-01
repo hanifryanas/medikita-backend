@@ -13,7 +13,6 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUserId } from '../../../common/decorators/current-user-id.decorator';
 import { RequiredRole } from '../../../common/decorators/required-role.decorator';
 import { UserRole } from '../../user/enums/user-role.enum';
-import { UserService } from '../../user/services/user.service';
 import { CreatePatientDto } from '../dtos/create-patient.dto';
 import { FilterPatientDto } from '../dtos/filter-patient.dto';
 import { ReorderPatientsDto } from '../dtos/reorder-patients.dto';
@@ -25,10 +24,7 @@ import { PatientService } from '../services/patient.service';
 @ApiTags('Patient')
 @ApiBearerAuth()
 export class PatientController {
-  constructor(
-    private readonly patientService: PatientService,
-    private readonly userService: UserService,
-  ) {}
+  constructor(private readonly patientService: PatientService) {}
 
   @RequiredRole(UserRole.Staff)
   @Get()

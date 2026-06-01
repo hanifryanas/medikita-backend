@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
   Column,
   Entity,
@@ -18,6 +19,11 @@ export class PatientInsurance extends BaseEntity {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'patientId' })
+  @Transform(
+    ({ value }: { value: Patient | null | undefined }) =>
+      value ? { patientId: value.patientId } : value,
+    { toPlainOnly: true },
+  )
   patient: Patient;
 
   @Column({ type: 'enum', enum: InsuranceProviderType })
