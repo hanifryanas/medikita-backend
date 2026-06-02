@@ -11,6 +11,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { DepartmentModule } from './modules/department/department.module';
 import { DoctorModule } from './modules/doctor/doctor.module';
 import { EmployeeModule } from './modules/employee/employee.module';
+import { HomeModule } from './modules/home/home.module';
 import { NurseModule } from './modules/nurse/nurse.module';
 import { PatientModule } from './modules/patient/patient.module';
 import { UserModule } from './modules/user/user.module';
@@ -65,6 +66,7 @@ import { UserModule } from './modules/user/user.module';
     DoctorModule,
     NurseModule,
     AppointmentModule,
+    HomeModule,
   ],
 })
 export class AppModule {}
