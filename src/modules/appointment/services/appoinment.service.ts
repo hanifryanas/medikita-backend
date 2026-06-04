@@ -5,6 +5,8 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Nurse } from '../../nurse/entities/nurse.entity';
+import { CloseAppointmentDto } from '../dtos/close-appointment.dto';
 import { Appointment } from '../entities/appointment.entity';
 
 @Injectable()
@@ -91,6 +93,26 @@ export class AppointmentService {
     const appointment = await this.findById(appointmentId);
 
     await this.appointmentRepository.save({ ...appointment, ...updateData });
+  }
+
+  async close(
+    appointmentId: string,
+    closeAppointmentDto: CloseAppointmentDto,
+  ): Promise<void> {
+    const appointment = await this.findById(appointmentId);
+
+    const merged: Appointment = {
+      ...appointment,
+      ...closeAppointmentDto,
+    } as Appointment;
+
+    if (closeAppointmentDto.nurseIds !== undefined) {
+      merged.nurses = closeAppointmentDto.nurseIds.map(
+        (nurseId) => ({ nurseId }) as Nurse,
+      );
+    }
+
+    await this.appointmentRepository.save(merged);
   }
 
   async delete(appointmentId: string): Promise<void> {

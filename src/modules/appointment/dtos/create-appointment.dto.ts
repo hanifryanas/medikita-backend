@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsDate, IsNotEmpty, IsString } from 'class-validator';
-import { add, format } from 'date-fns';
+import { IsDateString, IsNotEmpty, IsString, Matches } from 'class-validator';
+import { format } from 'date-fns';
 
 export class CreateAppointmentDto {
   @ApiProperty({
@@ -26,20 +25,21 @@ export class CreateAppointmentDto {
   concern: string;
 
   @ApiProperty({
-    example: format(new Date(), "yyyy-MM-dd'T'HH:mm:ssxxx"),
-    description: 'Start time of the appointment in ISO 8601 format',
+    example: format(new Date(), 'yyyy-MM-dd'),
+    description: 'Appointment date (yyyy-MM-dd)',
   })
-  @IsDate()
+  @IsDateString()
   @IsNotEmpty()
-  @Type(() => Date)
-  startTime: Date;
+  date: string;
 
   @ApiProperty({
-    example: format(add(new Date(), { hours: 1 }), "yyyy-MM-dd'T'HH:mm:ssxxx"),
-    description: 'End time of the appointment in ISO 8601 format',
+    example: '09:00',
+    description: 'Booked time slot in HH:mm (24h) format',
   })
-  @IsDate()
+  @IsString()
   @IsNotEmpty()
-  @Type(() => Date)
-  endTime: Date;
+  @Matches(/^([01]\d|2[0-3]):[0-5]\d$/, {
+    message: 'timeSlot must be in HH:mm (24h) format',
+  })
+  timeSlot: string;
 }

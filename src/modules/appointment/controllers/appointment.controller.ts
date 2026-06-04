@@ -8,13 +8,13 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { AppointmentService } from '../services/appoinment.service';
 import { RequiredRole } from '../../../common/decorators/required-role.decorator';
 import { UserRole } from '../../user/enums/user-role.enum';
-import { Appointment } from '../entities/appointment.entity';
-import { CreateAppointmentDto } from '../dtos/create-appointment.dto';
 import { CloseAppointmentDto } from '../dtos/close-appointment.dto';
+import { CreateAppointmentDto } from '../dtos/create-appointment.dto';
 import { UpdateAppointmentTimeDto } from '../dtos/update-appointment-time.dto';
+import { Appointment } from '../entities/appointment.entity';
+import { AppointmentService } from '../services/appoinment.service';
 
 @Controller('appointments')
 @ApiTags('Appointment')
@@ -38,7 +38,7 @@ export class AppointmentController {
     return this.appointmentService.findByPatientId(patientId);
   }
 
-  @RequiredRole(UserRole.Staff)
+  @RequiredRole(UserRole.CareTeam)
   @Get('doctors/:doctorId')
   async findByDoctor(
     @Param('doctorId') doctorId: string,
@@ -49,33 +49,33 @@ export class AppointmentController {
   @RequiredRole(UserRole.User)
   @Post()
   async create(
-    @Body() createAppoinmentDto: CreateAppointmentDto,
+    @Body() createAppointmentDto: CreateAppointmentDto,
   ): Promise<string> {
-    return this.appointmentService.create(createAppoinmentDto);
+    return this.appointmentService.create(createAppointmentDto);
   }
 
-  @RequiredRole(UserRole.Staff)
-  @Put(':appointmentId')
-  async update(
+  @RequiredRole(UserRole.CareTeam)
+  @Put(':appointmentId/close')
+  async close(
     @Param('appointmentId') appointmentId: string,
-    @Body() closeAppoinmentDto: CloseAppointmentDto,
+    @Body() closeAppointmentDto: CloseAppointmentDto,
   ): Promise<void> {
-    return this.appointmentService.update(appointmentId, closeAppoinmentDto);
+    return this.appointmentService.close(appointmentId, closeAppointmentDto);
   }
 
   @RequiredRole(UserRole.User)
   @Put(':appointmentId/reschedule')
   async reschedule(
     @Param('appointmentId') appointmentId: string,
-    @Body() updateAppoinmentTimeDto: UpdateAppointmentTimeDto,
+    @Body() updateAppointmentTimeDto: UpdateAppointmentTimeDto,
   ): Promise<void> {
     return this.appointmentService.update(
       appointmentId,
-      updateAppoinmentTimeDto,
+      updateAppointmentTimeDto,
     );
   }
 
-  @RequiredRole(UserRole.Staff)
+  @RequiredRole(UserRole.CareTeam)
   @Delete(':appointmentId')
   async delete(@Param('appointmentId') appointmentId: string): Promise<void> {
     return this.appointmentService.delete(appointmentId);
