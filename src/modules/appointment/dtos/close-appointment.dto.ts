@@ -44,6 +44,11 @@ export class CloseAppointmentDto {
   @Type(() => Date)
   endTime?: Date;
 
+  @ApiPropertyOptional({ example: 'Updated concern description' })
+  @IsOptional()
+  @IsString()
+  concern?: string;
+
   @ApiPropertyOptional({ example: 'Diagnosis details' })
   @IsOptional()
   @IsString()
