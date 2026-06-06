@@ -5,8 +5,11 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Doctor } from '../../doctor/entities/doctor.entity';
 import { Nurse } from '../../nurse/entities/nurse.entity';
+import { Patient } from '../../patient/entities/patient.entity';
 import { CloseAppointmentDto } from '../dtos/close-appointment.dto';
+import { CreateAppointmentDto } from '../dtos/create-appointment.dto';
 import { Appointment } from '../entities/appointment.entity';
 
 @Injectable()
@@ -87,8 +90,14 @@ export class AppointmentService {
     return appointments;
   }
 
-  async create(appointmentData: Partial<Appointment>): Promise<string> {
-    const newAppointment = this.appointmentRepository.create(appointmentData);
+  async create(createAppointmentDto: CreateAppointmentDto): Promise<string> {
+    const { patientId, doctorId, ...rest } = createAppointmentDto;
+
+    const newAppointment = this.appointmentRepository.create({
+      ...rest,
+      patient: { patientId } as Patient,
+      doctor: { doctorId } as Doctor,
+    });
 
     const createdAppointment =
       await this.appointmentRepository.save(newAppointment);

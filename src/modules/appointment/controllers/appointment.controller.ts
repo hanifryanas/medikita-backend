@@ -30,12 +30,6 @@ export class AppointmentController {
   }
 
   @RequiredRole(UserRole.User)
-  @Get('users/:userId')
-  async findByUser(@Param('userId') userId: string): Promise<Appointment[]> {
-    return this.appointmentService.findByUser(userId);
-  }
-
-  @RequiredRole(UserRole.User)
   @Get('patients/:patientId')
   async findByPatient(
     @Param('patientId') patientId: string,
