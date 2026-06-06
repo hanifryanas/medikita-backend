@@ -8,6 +8,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { CurrentUserId } from '../../../common/decorators/current-user-id.decorator';
 import { RequiredRole } from '../../../common/decorators/required-role.decorator';
 import { UserRole } from '../../user/enums/user-role.enum';
 import { CloseAppointmentDto } from '../dtos/close-appointment.dto';
@@ -23,11 +24,15 @@ export class AppointmentController {
   constructor(private readonly appointmentService: AppointmentService) {}
 
   @RequiredRole(UserRole.User)
-  @Get(':appointmentId')
-  async findById(
-    @Param('appointmentId') appointmentId: string,
-  ): Promise<Appointment> {
-    return this.appointmentService.findById(appointmentId);
+  @Get('me')
+  async findMine(@CurrentUserId() userId: string): Promise<Appointment[]> {
+    return this.appointmentService.findByUser(userId);
+  }
+
+  @RequiredRole(UserRole.User)
+  @Get('users/:userId')
+  async findByUser(@Param('userId') userId: string): Promise<Appointment[]> {
+    return this.appointmentService.findByUser(userId);
   }
 
   @RequiredRole(UserRole.User)
@@ -44,6 +49,14 @@ export class AppointmentController {
     @Param('doctorId') doctorId: string,
   ): Promise<Appointment[]> {
     return this.appointmentService.findByDoctorId(doctorId);
+  }
+
+  @RequiredRole(UserRole.User)
+  @Get(':appointmentId')
+  async findById(
+    @Param('appointmentId') appointmentId: string,
+  ): Promise<Appointment> {
+    return this.appointmentService.findById(appointmentId);
   }
 
   @RequiredRole(UserRole.User)

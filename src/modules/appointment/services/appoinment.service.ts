@@ -30,6 +30,20 @@ export class AppointmentService {
     return appointment;
   }
 
+  async findByUser(userId: string): Promise<Appointment[]> {
+    const appointments = await this.appointmentRepository.find({
+      where: { patient: { userPatients: { userId } } },
+    });
+
+    if (!appointments || appointments.length === 0) {
+      throw new NotFoundException(
+        `No appointments found for User ID ${userId}`,
+      );
+    }
+
+    return appointments;
+  }
+
   async findByPatientId(patientId: string): Promise<Appointment[]> {
     const appointments = await this.appointmentRepository.find({
       where: { patient: { patientId } },
