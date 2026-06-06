@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
 } from '@nestjs/common';
@@ -68,6 +69,12 @@ export class AppointmentController {
     @Body() closeAppointmentDto: CloseAppointmentDto,
   ): Promise<void> {
     return this.appointmentService.close(appointmentId, closeAppointmentDto);
+  }
+
+  @RequiredRole(UserRole.CareTeam)
+  @Patch(':appointmentId/check-in')
+  async checkIn(@Param('appointmentId') appointmentId: string): Promise<void> {
+    return this.appointmentService.checkIn(appointmentId);
   }
 
   @RequiredRole(UserRole.User)

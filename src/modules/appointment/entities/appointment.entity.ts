@@ -34,6 +34,9 @@ export class Appointment extends BaseEntity {
   @Column({ type: 'timestamp', nullable: true })
   endTime?: Date;
 
+  @Column({ type: 'timestamp', nullable: true })
+  checkInTime?: Date;
+
   @ManyToOne(() => Patient, (patient) => patient.appointments, { eager: true })
   @JoinColumn({ name: 'patientId' })
   patient: Patient;

@@ -118,6 +118,21 @@ export class AppointmentService {
     await this.appointmentRepository.save({ ...appointment, ...updateData });
   }
 
+  async checkIn(appointmentId: string): Promise<void> {
+    const appointment = await this.findById(appointmentId);
+
+    if (appointment.checkInTime) {
+      throw new BadRequestException(
+        `Appointment ${appointmentId} is already checked in`,
+      );
+    }
+
+    await this.appointmentRepository.save({
+      ...appointment,
+      checkInTime: new Date(),
+    });
+  }
+
   async close(
     appointmentId: string,
     closeAppointmentDto: CloseAppointmentDto,
