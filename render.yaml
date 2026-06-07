@@ -1,0 +1,40 @@
+# Render Blueprint for medikita-backend
+# Docs: https://render.com/docs/blueprint-spec
+#
+# This file lets Render auto-create the service when you point it at this repo.
+# DB is intentionally NOT defined here — we use Neon for free Postgres.
+# After Render creates the service, set DATABASE_URL and the other secrets
+# in the Render dashboard (or run `render blueprint launch`).
+
+services:
+  - type: web
+    name: medikita-api
+    runtime: docker
+    plan: free
+    region: singapore # closest to Indonesia; change to oregon/frankfurt if you prefer
+    branch: master
+    autoDeploy: true
+    healthCheckPath: /api/docs
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      # --- set these in the Render dashboard (marked sync:false so Render prompts you) ---
+      - key: DATABASE_URL
+        sync: false # paste full Neon connection string, e.g. postgresql://user:pass@ep-xxx.neon.tech/medikita?sslmode=require
+      - key: APP_NAME
+        value: Medikita
+      - key: APP_URL
+        sync: false # https://medikita-api.onrender.com once known
+      - key: ACCESS_TOKEN_SECRET
+        generateValue: true
+      - key: ACCESS_TOKEN_EXPIRATION_HOUR
+        value: "1"
+      - key: REFRESH_TOKEN_SECRET
+        generateValue: true
+      - key: REFRESH_TOKEN_EXPIRATION_HOUR
+        value: "720" # 30 days
+      - key: CORS_ORIGINS
+        sync: false # comma-separated, e.g. https://medikita.vercel.app,https://www.medikita.app
