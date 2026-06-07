@@ -5,6 +5,7 @@ import { DataSource } from 'typeorm';
 import { Schedule } from '../../common/entities/schedule.entity';
 import { Day } from '../../common/enums/day.enum';
 import { Status } from '../../common/enums/status.enum';
+import { formatDate } from '../../common/functions/format-date';
 import { Appointment } from '../../modules/appointment/entities/appointment.entity';
 import { Doctor } from '../../modules/doctor/entities/doctor.entity';
 import { Nurse } from '../../modules/nurse/entities/nurse.entity';
@@ -159,6 +160,9 @@ export class AppointmentSeeder implements Seeder {
         );
         const endTime = new Date(startTime.getTime() + slotMinutes * 60_000);
 
+        const dateString = formatDate(startTime);
+        const timeSlot = formatDate(startTime, 'HH:mm');
+
         let status: Status;
         if (endTime < now) {
           status = faker.helpers.weightedArrayElement([
@@ -194,6 +198,8 @@ export class AppointmentSeeder implements Seeder {
         appointments.push(
           manager.create(Appointment, {
             status,
+            date: dateString,
+            timeSlot,
             startTime,
             endTime,
             patient,
