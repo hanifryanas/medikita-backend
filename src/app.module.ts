@@ -45,9 +45,7 @@ import { UserModule } from './modules/user/user.module';
       useFactory: async (configService: ConfigService) => {
         const url = configService.get<string>('database.url');
         const useSsl = configService.get<boolean>('database.ssl');
-        const sslOption = useSsl
-          ? { ssl: { rejectUnauthorized: false } }
-          : {};
+        const sslOption = useSsl ? { ssl: { rejectUnauthorized: false } } : {};
 
         const baseConnection = url
           ? { url }
@@ -63,7 +61,9 @@ import { UserModule } from './modules/user/user.module';
           type: 'postgres' as const,
           ...baseConnection,
           ...sslOption,
-          entities: [join(__dirname, './modules/**/entities/*.entity{.ts,.js}')],
+          entities: [
+            join(__dirname, './modules/**/entities/*.entity{.ts,.js}'),
+          ],
           migrations: [join(__dirname, './migrations/*.ts')],
           subscribers: [
             join(__dirname, './modules/**/subscribers/*.subscriber{.ts,.js}'),

@@ -31,10 +31,10 @@ services:
       - key: ACCESS_TOKEN_SECRET
         generateValue: true
       - key: ACCESS_TOKEN_EXPIRATION_HOUR
-        value: "1"
+        value: '1'
       - key: REFRESH_TOKEN_SECRET
         generateValue: true
       - key: REFRESH_TOKEN_EXPIRATION_HOUR
-        value: "720" # 30 days
+        value: '720' # 30 days
       - key: CORS_ORIGINS
         sync: false # comma-separated, e.g. https://medikita.vercel.app,https://www.medikita.app
