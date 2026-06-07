@@ -23,7 +23,7 @@ const options: PostgresConnectionOptions = {
   ...connection,
   ...(useSsl ? { ssl: { rejectUnauthorized: false } } : {}),
   entities: [join(__dirname, '../modules/**/entities/*.entity{.ts,.js}')],
-  migrations: [join(__dirname, 'migrations/*.ts')],
+  migrations: [join(__dirname, 'migrations/*.{ts,js}')],
   subscribers: [
     join(__dirname, '../modules/**/subscribers/*.subscriber{.ts,.js}'),
   ],

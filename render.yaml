@@ -16,6 +16,8 @@ services:
     autoDeploy: true
     healthCheckPath: /api/docs
     dockerfilePath: ./Dockerfile
+    # Run TypeORM migrations against the compiled output before booting Nest.
+    dockerCommand: sh -c "node ./node_modules/typeorm/cli.js migration:run -d ./dist/database/data-source.js && node dist/main.js"
     envVars:
       - key: NODE_ENV
         value: production
@@ -24,6 +26,8 @@ services:
       # --- set these in the Render dashboard (marked sync:false so Render prompts you) ---
       - key: DATABASE_URL
         sync: false # paste full Neon connection string, e.g. postgresql://user:pass@ep-xxx.neon.tech/medikita?sslmode=require
+      - key: DB_SSL
+        value: 'true'
       - key: APP_NAME
         value: Medikita
       - key: APP_URL
