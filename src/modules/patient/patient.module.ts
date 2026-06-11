@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserPatient } from '../user/entities/user-patient.entity';
-import { User } from '../user/entities/user.entity';
-import { UserService } from '../user/services/user.service';
 import { PatientInsuranceController } from './controllers/patient-insurance.controller';
 import { PatientController } from './controllers/patient.controller';
 import { MedicalRecordCounter } from './entities/medical-record-counter.entity';
@@ -18,17 +16,11 @@ import { PatientSubscriber } from './subscribers/patient.subscriber';
       Patient,
       PatientInsurance,
       UserPatient,
-      User,
       MedicalRecordCounter,
     ]),
   ],
   controllers: [PatientController, PatientInsuranceController],
-  providers: [
-    PatientService,
-    PatientInsuranceService,
-    UserService,
-    PatientSubscriber,
-  ],
+  providers: [PatientService, PatientInsuranceService, PatientSubscriber],
   exports: [PatientService, PatientInsuranceService],
 })
 export class PatientModule {}

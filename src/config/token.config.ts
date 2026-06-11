@@ -1,11 +1,11 @@
 import { registerAs } from '@nestjs/config';
-import { config } from 'dotenv';
 
-config({ quiet: true });
+const toNumber = (value: string | undefined): number | undefined =>
+  value === undefined ? undefined : Number(value);
 
 export const tokenConfig = registerAs('token', () => ({
   accessTokenSecret: process.env.ACCESS_TOKEN_SECRET,
-  accessTokenExpiration: process.env.ACCESS_TOKEN_EXPIRATION_HOUR,
+  accessTokenExpiration: toNumber(process.env.ACCESS_TOKEN_EXPIRATION_HOUR),
   refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET,
-  refreshTokenExpiration: process.env.REFRESH_TOKEN_EXPIRATION_HOUR,
+  refreshTokenExpiration: toNumber(process.env.REFRESH_TOKEN_EXPIRATION_HOUR),
 }));

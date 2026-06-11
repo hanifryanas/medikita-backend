@@ -77,7 +77,7 @@ export class UserService {
       'role',
     ]);
 
-    const isPasswordValid = compareSync(signinDto.password, user?.password);
+    const isPasswordValid = compareSync(signinDto.password, user.password);
 
     if (!isPasswordValid) {
       throw new UnauthorizedException(

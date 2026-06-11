@@ -22,8 +22,8 @@ import { UserService } from './services/user.service';
       inject: [ConfigService],
     }),
   ],
-  providers: [ConfigService, UserService, UserTokenService],
+  providers: [UserService, UserTokenService],
   controllers: [UserController],
-  exports: [UserService, UserTokenService],
+  exports: [UserService, UserTokenService, JwtModule],
 })
 export class UserModule {}

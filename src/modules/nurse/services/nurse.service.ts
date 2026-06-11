@@ -156,10 +156,6 @@ export class NurseService {
   async update(nurseId: string, updateNurseDto: UpdateNurseDto): Promise<void> {
     const nurse = await this.findById(nurseId);
 
-    if (!nurse) {
-      throw new NotFoundException(`Nurse with ID ${nurseId} not found`);
-    }
-
     await this.nurseRepository.update(nurse.nurseId, updateNurseDto);
   }
 
@@ -175,31 +171,17 @@ export class NurseService {
   async deleteByUserId(userId: string): Promise<void> {
     const nurse = await this.findByUserId(userId);
 
-    if (!nurse) {
-      throw new NotFoundException(`Nurse with User ID ${userId} not found`);
-    }
-
     await this.nurseRepository.remove(nurse);
   }
 
   async deleteByEmployeeId(employeeId: string): Promise<void> {
     const nurse = await this.findByEmployeeId(employeeId);
 
-    if (!nurse) {
-      throw new NotFoundException(
-        `Nurse with Employee ID ${employeeId} not found`,
-      );
-    }
-
     await this.nurseRepository.remove(nurse);
   }
 
   async delete(nurseId: string): Promise<void> {
     const nurse = await this.findById(nurseId);
-
-    if (!nurse) {
-      throw new NotFoundException(`Nurse with ID ${nurseId} not found`);
-    }
 
     await this.nurseRepository.remove(nurse);
   }

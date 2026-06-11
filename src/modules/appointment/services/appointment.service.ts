@@ -156,12 +156,6 @@ export class AppointmentService {
   async delete(appointmentId: string): Promise<void> {
     const appointment = await this.findById(appointmentId);
 
-    if (!appointment) {
-      throw new NotFoundException(
-        `Appointment with ID ${appointmentId} not found`,
-      );
-    }
-
     await this.appointmentRepository.remove(appointment);
   }
 }
