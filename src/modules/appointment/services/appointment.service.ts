@@ -34,60 +34,30 @@ export class AppointmentService {
   }
 
   async findByUser(userId: string): Promise<Appointment[]> {
-    const appointments = await this.appointmentRepository.find({
+    return this.appointmentRepository.find({
       where: { patient: { userPatients: { userId } } },
     });
-
-    if (!appointments || appointments.length === 0) {
-      throw new NotFoundException(
-        `No appointments found for User ID ${userId}`,
-      );
-    }
-
-    return appointments;
   }
 
   async findByPatientId(patientId: string): Promise<Appointment[]> {
-    const appointments = await this.appointmentRepository.find({
+    return this.appointmentRepository.find({
       where: { patient: { patientId } },
     });
-
-    if (!appointments || appointments.length === 0) {
-      throw new NotFoundException(
-        `No appointments found for Patient ID ${patientId}`,
-      );
-    }
-
-    return appointments;
   }
 
   async findByDoctorId(doctorId: string): Promise<Appointment[]> {
-    const appointments = await this.appointmentRepository.find({
+    return this.appointmentRepository.find({
       where: { doctor: { doctorId } },
     });
-
-    if (!appointments || appointments.length === 0) {
-      throw new NotFoundException(
-        `No appointments found for Doctor ID ${doctorId}`,
-      );
-    }
-
-    return appointments;
   }
 
   async findBy(
     field: keyof Appointment,
     value: Appointment[keyof Appointment],
   ): Promise<Appointment[]> {
-    const appointments = await this.appointmentRepository.find({
+    return this.appointmentRepository.find({
       where: { [field]: value },
     });
-
-    if (!appointments || appointments.length === 0) {
-      throw new NotFoundException(`Appointments with ${field} not found`);
-    }
-
-    return appointments;
   }
 
   async create(createAppointmentDto: CreateAppointmentDto): Promise<string> {
