@@ -7,6 +7,7 @@ import {
   SerializeOptions,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { CurrentUserId } from '../../../common/decorators/current-user-id.decorator';
 import { Public } from '../../../common/decorators/public.decorator';
 import { CreateUserDto } from '../../user/dtos/create-user-dto';
@@ -27,12 +28,14 @@ export class AuthController {
   ) {}
 
   @Public()
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Post('/signup')
   async signup(@Body() createUserDto: CreateUserDto): Promise<SigninDataDto> {
     return this.authService.signup(createUserDto);
   }
 
   @Public()
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Post('/signin')
   @ApiBody({
     type: SigninDto,
@@ -43,6 +46,7 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Post('/refresh')
   async refresh(
     @Body() refreshTokenDto: RefreshTokenDto,
