@@ -16,7 +16,7 @@ import { CloseAppointmentDto } from '../dtos/close-appointment.dto';
 import { CreateAppointmentDto } from '../dtos/create-appointment.dto';
 import { UpdateAppointmentTimeDto } from '../dtos/update-appointment-time.dto';
 import { Appointment } from '../entities/appointment.entity';
-import { AppointmentService } from '../services/appoinment.service';
+import { AppointmentService } from '../services/appointment.service';
 
 @Controller('appointments')
 @ApiTags('Appointment')

@@ -16,7 +16,7 @@ import { Day } from '../../../common/enums/day.enum';
 import { Status } from '../../../common/enums/status.enum';
 import {
   formatDate,
-  stardartDateFormat,
+  standardDateFormat,
 } from '../../../common/functions/format-date';
 import { Appointment } from '../../appointment/entities/appointment.entity';
 import { DoctorScheduleResponseDto } from '../dtos/doctor-schedule-response.dto';
@@ -141,8 +141,8 @@ export class DoctorScheduleService {
         'startDate and endDate must be provided together',
       );
     }
-    const start = parse(startDate, stardartDateFormat, new Date());
-    const end = parse(endDate, stardartDateFormat, new Date());
+    const start = parse(startDate, standardDateFormat, new Date());
+    const end = parse(endDate, standardDateFormat, new Date());
     if (!isValid(start) || !isValid(end)) {
       throw new BadRequestException(
         'startDate and endDate must be valid dates',

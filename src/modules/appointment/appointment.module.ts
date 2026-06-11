@@ -5,7 +5,7 @@ import { Nurse } from '../nurse/entities/nurse.entity';
 import { Patient } from '../patient/entities/patient.entity';
 import { AppointmentController } from './controllers/appointment.controller';
 import { Appointment } from './entities/appointment.entity';
-import { AppointmentService } from './services/appoinment.service';
+import { AppointmentService } from './services/appointment.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Appointment, Doctor, Patient, Nurse])],

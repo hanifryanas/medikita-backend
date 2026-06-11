@@ -1,11 +1,11 @@
 import { format } from 'date-fns';
 
-export const stardartDateFormat = 'yyyy-MM-dd';
+export const standardDateFormat = 'yyyy-MM-dd';
 export const yearMonthFormat = 'yyyyMM';
 
 export const formatDate = (
   dateOrString: Date | string,
-  formatString: string = stardartDateFormat,
+  formatString: string = standardDateFormat,
 ): string => {
   const date =
     typeof dateOrString === 'string' ? new Date(dateOrString) : dateOrString;

@@ -10,7 +10,7 @@ import {
 } from 'class-validator';
 import {
   formatDate,
-  stardartDateFormat,
+  standardDateFormat,
 } from '../../../common/functions/format-date';
 import { UserRole } from '../../user/enums/user-role.enum';
 
@@ -24,7 +24,7 @@ export class CreateEmployeeDto {
     example: formatDate(new Date()),
   })
   @Matches(/^\d{4}-\d{2}-\d{2}$/, {
-    message: `startDate must be in ${stardartDateFormat} format`,
+    message: `startDate must be in ${standardDateFormat} format`,
   })
   @IsNotEmpty()
   startDate: string;

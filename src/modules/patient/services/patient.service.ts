@@ -1,4 +1,8 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, In, Not, Repository } from 'typeorm';
 import { UserPatient } from '../../user/entities/user-patient.entity';
@@ -7,6 +11,8 @@ import { FilterPatientDto } from '../dtos/filter-patient.dto';
 import { ReorderPatientItemDto } from '../dtos/reorder-patients.dto';
 import { UpdatePatientDto } from '../dtos/update-patient.dto';
 import { Patient } from '../entities/patient.entity';
+
+@Injectable()
 export class PatientService {
   constructor(
     @InjectRepository(Patient)

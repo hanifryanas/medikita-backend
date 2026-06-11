@@ -6,7 +6,7 @@ import {
   IsString,
   Matches,
 } from 'class-validator';
-import { stardartDateFormat } from '../../../common/functions/format-date';
+import { standardDateFormat } from '../../../common/functions/format-date';
 import { UserGenderType } from '../../user/enums/user-gender.enum';
 import { UserRelationship } from '../../user/enums/user-relationship.enum';
 
@@ -50,7 +50,7 @@ export class CreatePatientDto {
 
   @ApiProperty({ type: String, format: 'date' })
   @Matches(/^\d{4}-\d{2}-\d{2}$/, {
-    message: `dateOfBirth must be in ${stardartDateFormat} format`,
+    message: `dateOfBirth must be in ${standardDateFormat} format`,
   })
   dateOfBirth: string;
 

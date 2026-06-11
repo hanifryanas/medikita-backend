@@ -1,8 +1,13 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PatientInsurance } from '../entities/patient-insurance.entity';
 
+@Injectable()
 export class PatientInsuranceService {
   constructor(
     @InjectRepository(PatientInsurance)

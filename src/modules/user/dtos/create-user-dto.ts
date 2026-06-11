@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 import {
   formatDate,
-  stardartDateFormat,
+  standardDateFormat,
 } from '../../../common/functions/format-date';
 import { User } from '../entities/user.entity';
 import { UserGenderType } from '../enums/user-gender.enum';
@@ -91,7 +91,7 @@ export class CreateUserDto implements Partial<User> {
     description: 'Date of birth',
   })
   @Matches(/^\d{4}-\d{2}-\d{2}$/, {
-    message: `dateOfBirth must be in ${stardartDateFormat} format`,
+    message: `dateOfBirth must be in ${standardDateFormat} format`,
   })
   @IsNotEmpty()
   dateOfBirth: string;

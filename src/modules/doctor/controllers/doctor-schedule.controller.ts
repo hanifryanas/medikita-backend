@@ -31,14 +31,14 @@ export class DoctorScheduleController {
     required: false,
     type: String,
     description:
-      'Date in stardartDateFormat (yyyy-MM-dd). Provide with endDate to instantiate schedules per concrete date in the range with bookedTimeSlots.',
+      'Date in standardDateFormat (yyyy-MM-dd). Provide with endDate to instantiate schedules per concrete date in the range with bookedTimeSlots.',
   })
   @ApiQuery({
     name: 'endDate',
     required: false,
     type: String,
     description:
-      'Date in stardartDateFormat (yyyy-MM-dd). Provide together with startDate. Max span: 31 days.',
+      'Date in standardDateFormat (yyyy-MM-dd). Provide together with startDate. Max span: 31 days.',
   })
   async findAll(
     @Query() filterDoctorScheduleDto: FilterDoctorScheduleDto,
